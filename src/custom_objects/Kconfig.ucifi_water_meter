@@ -1,0 +1,26 @@
+#
+# Copyright (c) 2021 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config LWM2M_UCIFI_APP_WATER_METER
+	bool
+	help
+	  The uCIFI water meter measures water volume that was distributed through a water meter, in pulse count as well as in m3. It also detects anomalies in the water meter.
+
+if LWM2M_UCIFI_APP_WATER_METER
+
+config MIN_LEAK_DETECTION_INTERVAL_MS
+	int
+	default 5000
+	help
+	  Water flow overspeed alert threshold time.
+
+config MAX_LEAK_DETECTION_INTERVAL_MS
+	int
+	default 9000
+	help
+	  Water leak detection alert threshold time.
+
+endif # LWM2M_UCIFI_APP_WATER_METER

@@ -1,0 +1,20 @@
+{
+  "nrf-connect.topdir": "${nrf-connect.sdk:2.3.0}",
+  "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.3.0}",
+  "nrf-connect.applications": [
+    "."
+  ],
+  "files.associations": {
+    "accelerometer.h": "c",
+    "lwm2m_app_utils.h": "c",
+    "lwm2m_client_app.h": "c",
+    "location.h": "c",
+    "gpio.h": "c",
+    "ui_buzzer.h": "c",
+    "meter_sensor.h": "c",
+    "location_events.h": "c",
+    "gnss_pvt_event.h": "c",
+    "water_meter_event.h": "c",
+    "kernel.h": "c"
+  }
+}

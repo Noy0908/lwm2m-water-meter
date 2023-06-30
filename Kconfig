@@ -1,0 +1,83 @@
+#
+# Copyright (c) 2018 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+menu "Application sample"
+
+rsource "src/modules/Kconfig"
+rsource "src/lwm2m/Kconfig"
+
+menu "LwM2M objects"
+
+menuconfig APP_GNSS
+	bool "Enable GNSS"
+	select GNSS
+	select LWM2M_LOCATION_OBJ_SUPPORT
+
+if APP_GNSS
+	rsource "src/sensors/Kconfig.gnss"
+endif # APP_GNSS
+
+
+menuconfig APP_WATER_METER
+	bool "Enable water meter"
+	select LWM2M_UCIFI_APP_WATER_METER
+	select LWM2M_APP_WATER_METER
+
+if APP_WATER_METER
+	rsource "src/custom_objects/Kconfig.ucifi_water_meter"
+endif # APP_GNS
+
+
+endmenu # LwM2M objects
+
+config APP_LWM2M_PSK
+	string "LwM2M pre-shared key for communication"
+	default "000102030405060708090a0b0c0d0e0f"
+	help
+	  Pre Shared Key must be identical to the PSK registered with the device on the LwM2M server.
+	  Use the hexadecimal representation.
+
+config APP_ENDPOINT_PREFIX
+	string "Prefix used in the endpoint name"
+	default "urn:imei:"
+	help
+	  Sets the prefix of the endpoint name used when connecting to the LwM2M server.
+menu "Device info"
+config APP_MANUFACTURER
+	string "Board manufacturer"
+	default	"Nordic Semiconductor ASA"
+
+config APP_DEVICE_TYPE
+	string "Device type"
+	default	"OMA-LWM2M Client"
+endmenu
+
+config APP_CUSTOM_VERSION
+	string "Application version. Leave empty to use NCS version"
+
+config APP_NEIGHBOUR_CELL_SCAN_INTERVAL
+	int "Interval time [s] between neighbour cell scans"
+	depends on LWM2M_CLIENT_UTILS_SIGNAL_MEAS_INFO_OBJ_SUPPORT
+	default 600
+	help
+	  Low value on interval may reduce the performance of the system.
+
+config APP_LWM2M_CONFORMANCE_TESTING
+	bool "Send test payload periodically"
+	help
+	  Enable functionality that uses LwM2M SEND operation to deliver test payload.
+	  This allows testing of SEND operation itself as well as "mute-send" resource.
+
+module = APP
+module-dep = LOG
+module-str = Log level for sample
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+endmenu # Application sample
+
+
+menu "Zephyr Kernel"
+source "Kconfig.zephyr"
+endmenu # Zephyr Kernel
