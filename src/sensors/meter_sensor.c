@@ -1,7 +1,40 @@
-/* Copyright (c) 2022 Nordic Semiconductor ASA
- *
- * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
- */
+/* Copyright (c) 2010 - 2017, Nordic Semiconductor ASA
+*
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*
+* 1. Redistributions of source code must retain the above copyright notice, this
+*    list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form, except as embedded into a Nordic
+*    Semiconductor ASA integrated circuit in a product or a software update for
+*    such product, must reproduce the above copyright notice, this list of
+*    conditions and the following disclaimer in the documentation and/or other
+*    materials provided with the distribution.
+*
+* 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+*    contributors may be used to endorse or promote products derived from this
+*   software without specific prior written permission.
+*
+* 4. This software, with or without modification, must only be used with a
+*    Nordic Semiconductor ASA integrated circuit.
+*
+* 5. Any software provided in binary form under this license must not be reverse
+*    engineered, decompiled, modified and/or disassembled.
+*
+* THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
+* OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+* OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+* GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include <zephyr/kernel.h>
 #include <app_event_manager.h>
@@ -30,7 +63,6 @@ LOG_MODULE_REGISTER(meter_measure,CONFIG_APP_LOG_LEVEL);
 #error "Unsupported board: sw0 devicetree alias is not defined"
 #endif
 
-static K_SEM_DEFINE(pulse_sem, 0, 1);
 
 struct meter_data meter = {0};
 
@@ -76,9 +108,9 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 				LOG_WRN("Normal water flow!\n");
 				meter.leak_detected = false;
 				// wake up device and send leak alarm clearned to server
-				// struct water_meter_event *alarm_event = new_water_meter_event();
-				// alarm_event->type = FLOW_ALARM_NONE;
-				// APP_EVENT_SUBMIT(alarm_event);
+				struct water_meter_event *alarm_event = new_water_meter_event();
+				alarm_event->type = FLOW_ALARM_NONE;
+				APP_EVENT_SUBMIT(alarm_event);
 			}
 		} 
 		else {
@@ -86,8 +118,6 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 			leak_recorder.start = k_ticks_to_ms_floor64(k_uptime_ticks());
 		}
 	}
-	
-	// k_sem_give(&pulse_sem);
 }
 
 
@@ -115,7 +145,6 @@ void clean_meter_data(uint16_t res_id)
 
 	meter_setting_data_save();
 	// send_data_to_server();		//maybe you want to update data immediately
-	//save data to flash
 }
 
 
@@ -126,46 +155,6 @@ struct meter_data get_water_meter_volume(void)
 	return meter;
 }
 
-#if 0
-void water_meter_measure_thread(void)
-{
-	for (;;) 
-	{
-		// k_sleep(K_FOREVER);
-
-		/* Wait for pulse event */
-		// k_sem_take(&pulse_sem, K_FOREVER);
-
-		uint64_t currentTime = k_ticks_to_ms_floor64(k_uptime_ticks());// Every second, calculate and print litres/hour
-		if(currentTime >= (start_time + 1000))
-		{
-			start_time = currentTime; // Updates cloopTime
-			// Pulse frequency (Hz) = 7.5Q, Q is flow rate in L/min.
-			// l_hour = (pulse_count * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flowrate in L/hour
-			meter.volume = 0.2663 * meter.pulse_value;
-
-			/** refresh water meter date*/
-			// update_water_meter_value(meter);
-
-			// meter.pulse_value += pulse_count;
-			// LOG_ERR("total_pulse = %d\t volume = %fml\n", meter.pulse_value, meter.volume); // Print pulse count and volume?
-
-			// if(0== pulse_count)		//The valve has been closed, no more pulse 
-			// {
-			// 	start_time = 0;
-			// 	//save data to flash
-			// }
-			// else
-			// {
-			// 	pulse_count = 0; // Reset Counter
-			// }
-
-			/* Wait for pulse event */
-			k_sem_take(&pulse_sem, K_FOREVER);
-		}
-	}
-}
-#endif
 
 int water_meter_init(void)
 {
@@ -219,4 +208,3 @@ int water_meter_init(void)
 
 
 
-// K_THREAD_DEFINE(measure_thread_id, STACKSIZE, water_meter_measure_thread, NULL, NULL, NULL, PRIORITY, 0, 0);

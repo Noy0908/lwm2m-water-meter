@@ -3,6 +3,10 @@
 		{
 			"name": "lwm2m_water_meter",
 			"path": "."
+		},
+		{
+			"name": "asset_tracker_v2",
+			"path": "../../asset_tracker_v2"
 		}
 	],
 	"settings": {

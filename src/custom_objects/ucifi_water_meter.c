@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 /*
- * Source material for IPSO Colour object (3335) v1.1:
- * https://raw.githubusercontent.com/OpenMobileAlliance/lwm2m-registry/prod/version_history/3335-1_0.xml
+ * Source material for IPSO Colour object (3424) v1.1:
+ * https://devtoolkit.openmobilealliance.org/OEditor/LWMOView?url=https%3a%2f%2fraw.githubusercontent.com%2fOpenMobileAlliance%2flwm2m-registry%2fprod%2f3424.xml
  */
 
 #include <zephyr/kernel.h>
