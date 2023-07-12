@@ -52,10 +52,10 @@
 
 LOG_MODULE_REGISTER(meter_measure,CONFIG_APP_LOG_LEVEL);
 
-/* size of stack area used by each thread */
-#define STACKSIZE 1024
-/* scheduling priority used by each thread */
-#define PRIORITY 7
+// /* size of stack area used by each thread */
+// #define STACKSIZE 1024
+// /* scheduling priority used by each thread */
+// #define PRIORITY 7
 
 
 #define SW0_NODE	DT_ALIAS(sw0)
@@ -188,6 +188,9 @@ int water_meter_init(void)
 		return -1;
 	}
 
+	// static const nrfx_gpiote_input_config_t leak_input_config = {
+	// 	.pull = NRF_GPIO_PIN_PULLUP,
+	// };
 	const nrfx_gpiote_trigger_config_t leak_trigger_config = {
 		.trigger = NRFX_GPIOTE_TRIGGER_TOGGLE,
 		.p_in_channel = NULL,

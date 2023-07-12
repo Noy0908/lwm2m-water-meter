@@ -33,17 +33,6 @@ LOG_MODULE_REGISTER(lwm2m_water_meter,CONFIG_APP_LOG_LEVEL);
 /* Allocate data cache storage */
 static struct lwm2m_time_series_elem meter_volume_cache[10];
 
-
-
-// static int update_water_volume_cb(uint16_t obj_inst_id, uint16_t res_id, uint16_t res_inst_id,
-// 			       uint8_t *data, uint16_t data_len, bool last_block, size_t total_size)
-// {
-// 	LOG_DBG("Water meter volume has been updated!!!\r\n");
-	
-// 	return 0;
-// }
-
-
 int lwm2m_init_water_meter(void)
 {
 	double min_range_val = MIN_RANGE_VALUE;
@@ -60,10 +49,6 @@ int lwm2m_init_water_meter(void)
                 WATER_METER_TYPE_RID),
                 METER_TYPE, sizeof(METER_TYPE),
                 sizeof(METER_TYPE), LWM2M_RES_DATA_FLAG_RW);
-
-    // lwm2m_register_post_write_callback(&LWM2M_OBJ(UCIFI_OBJECT_WATER_METER_ID,
-    //             0, WATER_METER_CUMULATED_WATER_VOLUME_RID),
-    //             update_water_volume_cb);
 
 	regitster_clean_meter_data_cb(clean_meter_data);
 
