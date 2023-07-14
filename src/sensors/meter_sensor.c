@@ -87,7 +87,7 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 	}
 	else if (pin == leak_detection.pin)
 	{
-		if (!gpio_pin_get_dt(&leak_detection)) {
+		if (gpio_pin_get_dt(&leak_detection)) {
 			LOG_INF("Leak alert interrupt has stopped, now end the time[%d]\n", gpio_pin_get_dt(&leak_detection));
 			leak_recorder.end = k_ticks_to_ms_floor64(k_uptime_ticks());
 			leak_recorder.interval = leak_recorder.end - leak_recorder.start;
@@ -104,7 +104,8 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 			else if (leak_recorder.interval > CONFIG_MIN_LEAK_DETECTION_INTERVAL_MS) {
 				LOG_WRN("Water flow overspeed alert!!!\n");
 			} 
-			else {
+			else if (leak_recorder.interval > CONFIG_NORMAL_LEAK_DETECTION_INTERVAL_MS)
+			{
 				LOG_WRN("Normal water flow!\n");
 				meter.leak_detected = false;
 				// wake up device and send leak alarm clearned to server
@@ -188,14 +189,14 @@ int water_meter_init(void)
 		return -1;
 	}
 
-	// static const nrfx_gpiote_input_config_t leak_input_config = {
-	// 	.pull = NRF_GPIO_PIN_PULLUP,
-	// };
+	static const nrfx_gpiote_input_config_t leak_input_config = {
+		.pull = NRF_GPIO_PIN_PULLUP,
+	};
 	const nrfx_gpiote_trigger_config_t leak_trigger_config = {
 		.trigger = NRFX_GPIOTE_TRIGGER_TOGGLE,
 		.p_in_channel = NULL,
 	};
-	err = nrfx_gpiote_input_configure((nrfx_gpiote_pin_t)leak_detection.pin, &input_config,
+	err = nrfx_gpiote_input_configure((nrfx_gpiote_pin_t)leak_detection.pin, &leak_input_config,
 					  &leak_trigger_config, &handler_config);
 	if (err != NRFX_SUCCESS) {
 		LOG_ERR("nrfx_gpiote_input_configure error: 0x%08X", err);

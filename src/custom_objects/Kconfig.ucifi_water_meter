@@ -11,6 +11,12 @@ config LWM2M_UCIFI_APP_WATER_METER
 
 if LWM2M_UCIFI_APP_WATER_METER
 
+config NORMAL_LEAK_DETECTION_INTERVAL_MS
+	int
+	default 1500
+	help
+	  Water leak alert clean threshold time.
+
 config MIN_LEAK_DETECTION_INTERVAL_MS
 	int
 	default 5000
