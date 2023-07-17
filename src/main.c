@@ -291,10 +291,10 @@ void send_leak_detection_alert(void)
 		LOG_INF("Leak alarm data fail %d", ret);
 		/** save data fo flash if send fail*/
 	}
-	else
-	{
-		LOG_INF("\r\nDetect water leak alarm!!!!\r\n");
-	}
+// 	else
+// 	{
+// 		LOG_INF("\r\nDetect water leak alarm!!!!\r\n");
+// 	}
 }
 
 

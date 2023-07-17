@@ -82,7 +82,7 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 {
 	if (pin == meter_pulse.pin)
 	{
-		LOG_DBG("count meter pulse %d\n", meter.pulse_value);
+		// LOG_DBG("count meter pulse %d\n", meter.pulse_value);
 		meter.pulse_value++;
 	}
 	else if (pin == leak_detection.pin)
@@ -107,11 +107,14 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 			else if (leak_recorder.interval > CONFIG_NORMAL_LEAK_DETECTION_INTERVAL_MS)
 			{
 				LOG_WRN("Normal water flow!\n");
-				meter.leak_detected = false;
-				// wake up device and send leak alarm clearned to server
-				struct water_meter_event *alarm_event = new_water_meter_event();
-				alarm_event->type = FLOW_ALARM_NONE;
-				APP_EVENT_SUBMIT(alarm_event);
+				if(meter.leak_detected)
+				{
+					meter.leak_detected = false;
+					// wake up device and send leak alarm clearned to server
+					struct water_meter_event *alarm_event = new_water_meter_event();
+					alarm_event->type = FLOW_ALARM_NONE;
+					APP_EVENT_SUBMIT(alarm_event);
+				}
 			}
 		} 
 		else {
