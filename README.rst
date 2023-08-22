@@ -49,7 +49,7 @@ To enable notifications, the server must initiate an observation request on one 
 
 
 
-### LWM2M_send
+### LWM2M_send_cb
 
 LwM2M also supports active data reporting, which can be used to send the alarm message to cloud timely, for example, if the water leakage alarm is detected, the device will immediately be awakened and connected to the LWM2M server, reporting the alarm message to the cloud timely. 
 

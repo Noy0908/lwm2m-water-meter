@@ -1,5 +1,3 @@
-/*
- * Copyright (c) 2021 Nordic Semiconductor ASA
 /* Copyright (c) 2010 - 2017, Nordic Semiconductor ASA
 *
 * All rights reserved.

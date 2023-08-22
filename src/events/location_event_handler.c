@@ -75,7 +75,7 @@ static bool handle_agps_request(const struct gnss_agps_request_event *event)
 static bool handle_ground_fix_location_event(bool send_back)
 {
 	ground_fix_set_report_back(send_back);
-	location_assistance_ground_fix_request_send(client_ctx, true);
+	location_assistance_ground_fix_request_send(client_ctx);
 
 	return true;
 }
