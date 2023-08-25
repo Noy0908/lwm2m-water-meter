@@ -147,8 +147,8 @@ void clean_meter_data(uint16_t res_id)
 		LOG_ERR("The res_id error, the resource didn't support!!!\n");
 	}
 
-	meter_setting_data_save();
-	// send_data_to_server();		//maybe you want to update data immediately
+	// meter_setting_data_save();
+	send_data_to_server();		//maybe you want to update data immediately
 }
 
 
