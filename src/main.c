@@ -68,7 +68,7 @@ LOG_MODULE_REGISTER(app_lwm2m_client, CONFIG_APP_LOG_LEVEL);
 #error "Missing CONFIG_LTE_LINK_CONTROL"
 #endif
 
-#define FW_VERSION	"1.1.0"
+#define FW_VERSION	"2.0.0"
 #define APP_BANNER "Run LWM2M client"
 
 #define IMEI_LEN 15

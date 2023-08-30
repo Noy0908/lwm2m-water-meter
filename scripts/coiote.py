@@ -56,6 +56,9 @@ class Coiote():
             logging.error("COIOTE_USER or COIOTE_PASSWD not set")
             sys.exit(1)
 
+        # self.user   = os.environ.get("noy.luo@nordicsemi.no")
+        # self.passwd = os.environ.get("Luoyu@0908")
+
         self.headers = {'accept': 'application/json',
                         'content-type': 'application/json'}
         self.binary_headers = {"accept": "application/json",
@@ -160,7 +163,7 @@ class Coiote():
         return Coiote.handle_response(resp)
 
     def fota_object(self):
-        resp = self.get(f'/cachedDataModels/{self.device_id}?parameters={"Advanced Firmware Update."}')
+        resp = self.get(f'/cachedDataModels/{self.device_id}?parameters={"Multicomponent Firmware Update."}')
         response_length = len(resp)
         if response_length:
             return 33629
@@ -241,7 +244,7 @@ class Coiote():
         operation = Operationlist()
 
         if object == 33629:
-            resource = f'Advanced Firmware Update.{instance}.Update'
+            resource = f'Multicomponent Firmware Update.{instance}.Update'
             if linked_instance is not None:
                 if isinstance(linked_instance, list):
                     linked_list = ""
@@ -269,10 +272,10 @@ class Coiote():
         version_num = None
 
         if object == 33629:
-            resource = f'Advanced Firmware Update.{instance}.'
-            state_path = f'Advanced Firmware Update.{instance}.State'
-            result_path = f'Advanced Firmware Update.{instance}.Update Result'
-            version_num_path = f'Advanced Firmware Update.{instance}.Current Version'
+            resource = f'Multicomponent Firmware Update.{instance}.'
+            state_path = f'Multicomponent Firmware Update.{instance}.State'
+            result_path = f'Multicomponent Firmware Update.{instance}.Update Result'
+            version_num_path = f'Multicomponent Firmware Update.{instance}.Current Version'
         else:
             resource = f'Firmware Update.{instance}.'
             state_path = f'Firmware Update.{instance}.State'
@@ -300,7 +303,7 @@ class Coiote():
         operation = Operationlist()
 
         if object == 33629:
-            operation.resource = f'Advanced Firmware Update.{instance}.Cancel'
+            operation.resource = f'Multicomponent Firmware Update.{instance}.Cancel'
             return self.execute(operation, True)
         elif object == 5:
             operation.resource = "Firmware Update.0.Package URI"

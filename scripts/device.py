@@ -126,7 +126,8 @@ class Device:
 
         return sids[index]
 
-    def get_devices(self, vid):
+    @classmethod
+    def get_devices(cls, vid):
         sids = []
         for item in comports():
             if item.vid == vid:
@@ -135,7 +136,8 @@ class Device:
                     sids.append(snr)
         return sids
 
-    def get_com_ports(self, sid):
+    @classmethod
+    def get_com_ports(cls, sid):
         com_ports = []
         for item in comports():
             if item.manufacturer == "SEGGER" and item.serial_number.lstrip("0") == sid:
