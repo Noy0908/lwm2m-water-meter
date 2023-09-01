@@ -617,6 +617,12 @@ static void modem_connect(void)
 	} else {
 		LOG_INF("PSM mode requested");
 	}
+
+	/** Release Assistance Indication,Added by Noy to test RAI*/
+	ret = lte_lc_rai_req(true);
+	if (ret) {
+		LOG_ERR("lte_lc_rai_req, error: %d\n", ret);
+	}
 #endif
 
 	do {
