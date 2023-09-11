@@ -56,9 +56,6 @@ class Coiote():
             logging.error("COIOTE_USER or COIOTE_PASSWD not set")
             sys.exit(1)
 
-        # self.user   = os.environ.get("noy.luo@nordicsemi.no")
-        # self.passwd = os.environ.get("Luoyu@0908")
-
         self.headers = {'accept': 'application/json',
                         'content-type': 'application/json'}
         self.binary_headers = {"accept": "application/json",

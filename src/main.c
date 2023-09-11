@@ -68,7 +68,6 @@ LOG_MODULE_REGISTER(app_lwm2m_client, CONFIG_APP_LOG_LEVEL);
 #error "Missing CONFIG_LTE_LINK_CONTROL"
 #endif
 
-#define FW_VERSION	"2.0.0"
 #define APP_BANNER "Run LWM2M client"
 
 #define IMEI_LEN 15
@@ -304,7 +303,7 @@ void send_data_to_server(void)
 	}
 	else
 	{
-		LOG_INF("\r\nPeriodly send sensor value!\r\n");
+		LOG_WRN("Upload data when lwm2m connected server!\r\n");
 	}
 
 	/**Send cell location request event */
@@ -409,6 +408,7 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 		break;
 	/** FOTA download process finished */
 	case LWM2M_FOTA_DOWNLOAD_FINISHED:
+		// ready_for_firmware_update = false;			//added by Noy
 		LOG_INF("FOTA download ready for instance %d, dfu_type %d",
 			event->download_ready.obj_inst_id, event->download_ready.dfu_type);
 		break;
@@ -424,6 +424,7 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 		break;
 	/** Fota process fail or cancelled  */
 	case LWM2M_FOTA_UPDATE_ERROR:
+		ready_for_firmware_update = false;			//added by Noy
 		LOG_INF("FOTA failure %d by status %d", event->failure.obj_inst_id,
 			event->failure.update_failure);
 		break;
@@ -617,12 +618,6 @@ static void modem_connect(void)
 	} else {
 		LOG_INF("PSM mode requested");
 	}
-
-	/** Release Assistance Indication,Added by Noy to test RAI*/
-	ret = lte_lc_rai_req(true);
-	if (ret) {
-		LOG_ERR("lte_lc_rai_req, error: %d\n", ret);
-	}
 #endif
 
 	do {
@@ -717,7 +712,7 @@ int main(void)
 	int ret;
 	uint32_t bootstrap_flags = 0;
 
-	LOG_INF("Run LWM2M client,version is %s\n", FW_VERSION);
+	LOG_INF("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMAGE_VERSION);
 
 #if !defined(CONFIG_NRF_MODEM_LIB_SYS_INIT)
 	ret = nrf_modem_lib_init();
@@ -846,7 +841,12 @@ int main(void)
 			} else {
 				k_mutex_unlock(&lte_mutex);
 				LOG_INF("LwM2M is connected to server\r\n");
-				send_data_to_server();
+
+				if(!ready_for_firmware_update)		//added by Noy
+				{
+					send_data_to_server();
+				}
+				
 #if defined(CONFIG_APP_LWM2M_CONFORMANCE_TESTING)
 				lwm2m_register_server_send_mute_cb();
 #endif
