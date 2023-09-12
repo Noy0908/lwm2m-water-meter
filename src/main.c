@@ -102,6 +102,8 @@ static bool modem_connected_to_network;
 /* Enable session lifetime check for initial boot */
 static bool update_session_lifetime = true;
 static bool ready_for_firmware_update;
+/** This flag used to indicate if the fota is ongoing*/
+static bool updating_flag = false;	
 
 static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event client_event);
 
@@ -327,10 +329,6 @@ void send_leak_detection_alert(void)
 		LOG_INF("Leak alarm data fail %d", ret);
 		/** save data fo flash if send fail*/
 	}
-// 	else
-// 	{
-// 		LOG_INF("\r\nDetect water leak alarm!!!!\r\n");
-// 	}
 }
 
 
@@ -404,16 +402,18 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 	k_mutex_lock(&lte_mutex, K_FOREVER);
 	switch (event->id) {
 	case LWM2M_FOTA_DOWNLOAD_START:
+		updating_flag = true;
 		LOG_INF("FOTA download started for instance %d", event->download_start.obj_inst_id);
 		break;
 	/** FOTA download process finished */
 	case LWM2M_FOTA_DOWNLOAD_FINISHED:
-		// ready_for_firmware_update = false;			//added by Noy
+		updating_flag = false;
 		LOG_INF("FOTA download ready for instance %d, dfu_type %d",
 			event->download_ready.obj_inst_id, event->download_ready.dfu_type);
 		break;
 	/** FOTA update new image */
 	case LWM2M_FOTA_UPDATE_IMAGE_REQ:
+		updating_flag = false;
 		if (!ready_for_firmware_update) {
 			state_trigger_and_unlock(UPDATE_FIRMWARE);
 			/* Postpone request by 2 seconds */
@@ -424,7 +424,7 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 		break;
 	/** Fota process fail or cancelled  */
 	case LWM2M_FOTA_UPDATE_ERROR:
-		ready_for_firmware_update = false;			//added by Noy
+		updating_flag = false;			//added by Noy
 		LOG_INF("FOTA failure %d by status %d", event->failure.obj_inst_id,
 			event->failure.update_failure);
 		break;
@@ -432,6 +432,7 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 	k_mutex_unlock(&lte_mutex);
 	return 0;
 }
+
 #endif
 
 
@@ -712,7 +713,7 @@ int main(void)
 	int ret;
 	uint32_t bootstrap_flags = 0;
 
-	LOG_INF("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMAGE_VERSION);
+	LOG_WRN("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMAGE_VERSION);
 
 #if !defined(CONFIG_NRF_MODEM_LIB_SYS_INIT)
 	ret = nrf_modem_lib_init();
@@ -842,7 +843,7 @@ int main(void)
 				k_mutex_unlock(&lte_mutex);
 				LOG_INF("LwM2M is connected to server\r\n");
 
-				if(!ready_for_firmware_update)		//added by Noy
+				if(!updating_flag)		//added by Noy
 				{
 					send_data_to_server();
 				}
