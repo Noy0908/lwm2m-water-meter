@@ -326,8 +326,9 @@ void send_leak_detection_alert(void)
 	ret = lwm2m_send_cb(&client, send_path, ARRAY_SIZE(send_path), NULL);
 	if (ret) 
 	{
-		LOG_INF("Leak alarm data fail %d", ret);
+		LOG_ERR("Leak alarm data send fail %d, save the data to flash!", ret);
 		/** save data fo flash if send fail*/
+		meter_setting_data_save();
 	}
 }
 
@@ -713,7 +714,7 @@ int main(void)
 	int ret;
 	uint32_t bootstrap_flags = 0;
 
-	LOG_WRN("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMAGE_VERSION);
+	LOG_WRN("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION);
 
 #if !defined(CONFIG_NRF_MODEM_LIB_SYS_INIT)
 	ret = nrf_modem_lib_init();

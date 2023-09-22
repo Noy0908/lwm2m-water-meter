@@ -23,7 +23,7 @@
 		signal {
 			compatible = "gpio-keys";
 			signal1: signal_1 {
-				gpios = <&gpio0 14 0x1>;
+				gpios = <&gpio0 13 0x1>;
 				label = "signal_1";
 			};
 			signal2: signal_2 {

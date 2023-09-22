@@ -10,7 +10,7 @@ The sample also supports a proprietary mechanism to fetch location assistance da
 
 ### requirements
 
-The sample runs on a nRF9160DK, based on NCS2.3.0 SDK. 
+The sample runs on a nRF9160DK, based on NCS2.4.99 SDK. 
 
 When built for an `_ns` build target, the sample is configured to compile and run as a non-secure application with [Cortex-M Security Extensions enabled](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/config_and_build/board_support.html#app-boards-spe-nspe-cpuapp-ns). Therefore, it automatically includes [Trusted Firmware-M](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/security/tfm.html#ug-tfm) that prepares the required peripherals and secure services to be available for the application.
 
@@ -49,9 +49,17 @@ To enable notifications, the server must initiate an observation request on one 
 
 
 
-### LWM2M_send_cb
+### LWM2M_send
 
 LwM2M also supports active data reporting, which can be used to send the alarm message to cloud timely, for example, if the water leakage alarm is detected, the device will immediately be awakened and connected to the LWM2M server, reporting the alarm message to the cloud timely. 
+
+
+
+### [Release Assistance Indication (RAI)](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/test_and_optimize/optimizing/power_nrf9160.html#release-assistance-indication-rai)
+
+If you have low-level control over the protocol your IOT device uses, you might know when you should not expect more data. In that case, you can request to skip the RRC idle mode using [Release Assistance Indication (RAI)](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/documentation/glossary.html#term-Release-Assistance-Indication-RAI). The recommended way to do this is enable below macro:
+
+**CONFIG_LWM2M_CLIENT_UTILS_RAI=y**
 
 
 
@@ -69,7 +77,7 @@ The sample also supports FOTA through [LwM2M Advanced Firmware Update](https://d
 
 ### pull the source code
 
-> https://github.com/Noy0908/lwm2m-water-meter.git
+> https://github.com/Noy0908/lwm2m-water-meter/tree/water-meter_v2.4.99
 >
 > The branch **water-meter** is the application code which runs on nRF9160DK.
 >
@@ -78,6 +86,13 @@ The sample also supports FOTA through [LwM2M Advanced Firmware Update](https://d
 
 
 ### Configuration and test
+
+##### Set the LWM2M PSK
+
+- Open `src/prj.conf`.
+- Set [CONFIG_APP_LWM2M_PSK](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/samples/nrf9160/lwm2m_client/sample_description.html#config-app-lwm2m-psk) to the hexadecimal representation of the PSK you will use when registering the device with the server.
+
+
 
 ##### Build the sample with the following overlays:
 
@@ -90,6 +105,10 @@ The sample also supports FOTA through [LwM2M Advanced Firmware Update](https://d
 - `overlay-adv-firmware.conf`
 
 - `overlay-lowpower.conf`
+
+- `overlay-dtls-cid.conf`
+
+- `boards/nrf9160dk_nrf9160_ns.conf`
 
   **if you want to use NBIOT network, you need to add below config file.**
 
@@ -118,15 +137,6 @@ The sample also supports FOTA through [LwM2M Advanced Firmware Update](https://d
 
 
 
-##### Set the server address and PSK
-
-- Open `src/prj.conf`.
-- Set [`CONFIG_LWM2M_CLIENT_UTILS_SERVER`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_LWM2M_CLIENT_UTILS_SERVER) to the correct server URL:
-  - For [Coiote Device Management](https://www.avsystem.com/products/coiote-iot-device-management-platform/) - `coaps://eu.iot.avsystem.cloud:5684` ([Coiote Device Management server](https://eu.iot.avsystem.cloud/)).
-- Set [CONFIG_APP_LWM2M_PSK](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/samples/nrf9160/lwm2m_client/sample_description.html#config-app-lwm2m-psk) to the hexadecimal representation of the PSK used when registering the device with the server.
-
-
-
 ##### Enabling notifications
 
 - Open [Coiote Device Management server](https://eu.iot.avsystem.cloud/).
@@ -141,7 +151,7 @@ The sample also supports FOTA through [LwM2M Advanced Firmware Update](https://d
   - Selecting **Observe** will only update the Value field of the resource when it receives a notification.
   - Selecting **Monitoring** will additionally create a graph of the logged datapoints.
 - Click **Limit data usage** to configure how often notifications are sent. For a real deployment, typical notification interval is 6h (4 updates per day); for testing it can be used 10minutes.
-  <font color=red>NOTE: if this interval is shorter than the PSM interval, any time the devices wakes up to send data, it will also perform TAU and reset the PSM timer. If the interval is too short（less than 2 minutes), device will not enter sleep and the water meter data will not update, so the notification intermal must be greater than 2 minutes. </font>
+  <font color=red>NOTE: if this interval is shorter than the PSM interval, any time the devices wakes up to send data, it will also perform TAU and reset the PSM timer. If the interval is too short（less than 2 minutes), device will not enter sleep and the water meter data will not be updated, so the notification interval must be greater than 2 minutes. </font>
 
 
 
@@ -157,13 +167,11 @@ After programming the sample to your development kit, complete the following ste
 
 - Check that the device is connected to the chosen LwM2M server.
 
-- Test water flow: If you have a nRF52840DK, you can connect the P0.15 on nRF52840 DK to P0.14 on nRF9160 DK to output pulse to simulate water flow sensor. After you flash the **pwm-pulse-count** program to nRF52840DK, pulse waveforms with different frequency can be generated by pressing button1, and a measured water volume will be printed in the log (you can not include `overlay-lowpower.conf` file).
+- Test water flow: If you have a nRF52840DK, you can connect the P0.15 on nRF52840 DK to P0.13 on nRF9160 DK to output pulse to simulate water flow sensor. After you flash the **pwm-pulse-count** program to nRF52840DK, pulse waveforms with different frequency can be generated by pressing button1, and a measured water volume will be printed in the log (you can not include `overlay-lowpower.conf` file).
 
 - Test leak detection: connect P0.06 on nRF9160 DK to VDD will start leak event timing, below thresholds are configurable in prj.conf file.
 
 - > ​	if the time exceeds 9 seconds (configurable)will trigger leak alert and report leak event to server.
-  >
-  > ​	if the time between 5 seconds and 9 seconds , it will trigger Water flow overspeed alert but without data report.
   >
   > ​	If there is a leak alarm and the time is between 1.5 seconds and 5 seconds, the water leakage alarm will be cleared.
 
@@ -207,11 +215,16 @@ You can update the firmware of the device if you are using Coiote Device Managem
 To update the firmware, complete the following steps:
 
 - Identify the firmware image file to be uploaded to the device. See [LTE modem](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#lte-modem) and [FOTA upgrades](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#nrf9160-fota) for more information.
-- Open [Coiote Device Management server](https://eu.iot.avsystem.cloud/) and click **LwM2M firmware**.
-- Click **Schedule new firmware upgrade**.
-- Click **Upload file** in the bottom left corner and upload the firmware image file.
-- Configure the necessary firmware update settings in the menu to the right.
-- Click **Upgrade**.
+- Change [`CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#CONFIG_MCUBOOT_IMAGE_VERSION) to a different version and rebuild the sample to generate the upgrade image.
+- Enable TLV data format: [`CONFIG_LWM2M_RW_OMA_TLV_SUPPORT=y`](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#!CONFIG_LWM2M_RW_OMA_TLV_SUPPORT)
+- Open [Coiote Device Management server](https://eu.iot.avsystem.cloud/) and click **Update Firmware** label.
+- Click **Multi-component Firmware Update**.
+- Click **Next** to upload the image file.
+- **Selected components**, You can choose whether to upgrade the modem or the application in the dropdown box.
+- Click **Upload Firmware** in the bottom left corner and upload the firmware image file you generated, and fill in relevant information.
+- Click **Next** to config the firmware update settings in the menu , Image transport type support **Cops(UDP)** and **HTTP**. we recommend **HTTP**. URI format support both **DNS based** and **Raw IP address based**. **Timeout** depends on your network condition, the recommend value is 60 minutes.
+- Click **Next** to Schedule Updates.
+- Click **Schedule Update** to wait the upgrade start.
 - Observe in the terminal window that the image file is being downloaded. The download will take some time. If you do not increase the server lifetime, the Coiote server might drop the connection to the device. The device reconnects later.
 - When the download is complete, the device restarts on its own after installing the firmware. Restart the device manually if it has not started automatically. The device runs the updated firmware and reconnects to Coiote Device Management server automatically.
 
