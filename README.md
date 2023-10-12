@@ -37,7 +37,7 @@ The sample implements the following LwM2M objects:
 
 water meter objects has below resources:
 
-![](C:\Work\git\LET_sample\lwm2m_water_meter\docs\water_meter_object.png)
+![](docs\water_meter_object.png)
 
 
 
