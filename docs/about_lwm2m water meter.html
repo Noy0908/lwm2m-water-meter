@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>LWM2M introduction &mdash; LWM2M water meter  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/nordic.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/nordic.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+  <script type="text/javascript" src="_static/js/ncs.js"></script>
+
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Requirements" href="environment_setup.html" />
+    <link rel="prev" title="Welcome to nRF Connect SDK – LWM2M water meter" href="index.html" />
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> LWM2M water meter
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div id="searchbox" role="search">
+  <div class="searchformwrapper">
+    <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+  </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Subpages:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">LWM2M introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lwm2m-client-state-diagram">LwM2M client state diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lwm2m-water-meter-introduction">LWM2M water meter introduction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="environment_setup.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">Samples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="additional_resources.html">Additional resources</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LWM2M water meter</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>LWM2M introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/about_lwm2m water meter.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="lwm2m-introduction">
+<span id="id1"></span><h1>LWM2M introduction<a class="headerlink" href="#lwm2m-introduction" title="Permalink to this heading">¶</a></h1>
+<p>LwM2M is an application layer protocol based on CoAP over UDP. It is designed to expose various resources for reading, writing,
+and executing through an LwM2M server in a very lightweight environment. The client sends data such as sensor data,
+GNSS position to the LwM2M server. It can also receive activation commands such as mator on off,reset device…</p>
+<section id="lwm2m-client-state-diagram">
+<h2>LwM2M client state diagram<a class="headerlink" href="#lwm2m-client-state-diagram" title="Permalink to this heading">¶</a></h2>
+<p>The following diagram shows states and transitions for the LwM2M Client:</p>
+<figure class="align-default">
+<img alt="_images/lwm2m_client_state_diagram.png" src="_images/lwm2m_client_state_diagram.png" />
+</figure>
+<p>When the device boots up, the sample first connects to the LTE network and initiates the LwM2M connection.
+If there are errors, in most error cases, the sample tries to reconnect the LwM2M client. In the case of network errors,
+it tries to reconnect the LTE network. When the number of retries to restore the network connection exceeds three times,
+the sample falls back to the bootstrap. This enables the recovery in the cases where the LwM2M client credentials are outdated or removed from the server.</p>
+</section>
+<section id="lwm2m-water-meter-introduction">
+<h2>LWM2M water meter introduction<a class="headerlink" href="#lwm2m-water-meter-introduction" title="Permalink to this heading">¶</a></h2>
+<p>The LwM2M water meter demonstrates usage of the <a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/documentation/glossary.html#term-Lightweight-Machine-to-Machine-LwM2M">Lightweight Machine to
+Machine
+(LwM2M)</a>
+protocol to connect a water meter to AVsystem through LTE/NBIOT. This
+sample uses the <a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/lwm2m_client_utils.html#lib-lwm2m-client-utils">LwM2M client
+utils</a>
+library.</p>
+<p>The sample also supports a proprietary mechanism to fetch location
+assistance data from <a class="reference external" href="https://nrfcloud.com/?__hstc=8439722.cbeac76abe662bf67fe62ab3247a2a9b.1663037262283.1688002378986.1688026636411.129&amp;__hssc=8439722.4.1688026636411&amp;__hsfp=4099787016">nRF
+Cloud</a>
+by proxying it through the LwM2M server. For this, the sample makes use
+of the <a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/lwm2m_location_assistance.html#lib-lwm2m-location-assistance">LwM2M location
+assistance</a>
+library.</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="environment_setup.html" class="btn btn-neutral float-right" title="Requirements" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to nRF Connect SDK – LWM2M water meter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+
+<table>
+<tr>
+<td>
+    <p>
+        &copy; Copyright 2023, Nordic Semiconductor.
+
+    </p>
+</td>
+<td id="nordiclogo">
+  <a href="https://www.nordicsemi.com/"><img src="_static/images/nordic.svg" border="0"/></a>
+</td>
+</tr>
+</table>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

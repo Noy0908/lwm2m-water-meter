@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Testing &mdash; LWM2M water meter  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/nordic.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/nordic.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+  <script type="text/javascript" src="_static/js/ncs.js"></script>
+
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Additional resources" href="additional_resources.html" />
+    <link rel="prev" title="Samples" href="samples.html" />
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> LWM2M water meter
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div id="searchbox" role="search">
+  <div class="searchformwrapper">
+    <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+  </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Subpages:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about_lwm2m%20water%20meter.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about_lwm2m%20water%20meter.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about_lwm2m%20water%20meter.html#state-diagram">State diagram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_setup.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">Samples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#server-setup">server setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#enabling-notifications">Enabling notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#firmware-over-the-air-fota">Firmware Over-the-Air (FOTA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#measuring-power-consumption">Measuring power consumption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="additional_resources.html">Additional resources</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LWM2M water meter</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Testing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/testing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="testing">
+<span id="id1"></span><h1>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h1>
+<section id="server-setup">
+<h2>server setup<a class="headerlink" href="#server-setup" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><div class="line-block">
+<div class="line">Open <a class="reference external" href="https://eu.iot.avsystem.cloud/">Coiote Device Management
+server</a>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click on <strong>Device inventory</strong> in the left menu in the UI.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click on <strong>Add new device</strong>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click on <strong>Connect your LwM2M device directly via the management
+server</strong>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Enter the following data and click <strong>Add device</strong>:</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li><p>Endpoint - <a class="reference external" href="urn:imei">urn:imei</a>:<em>your Device IMEI</em></p></li>
+<li><p>Friendly Name - <em>recognizable name</em></p></li>
+<li><p>Security mode - psk (Pre-Shared Key)</p></li>
+<li><p>Key - your key (for example, <code class="docutils literal notranslate"><span class="pre">000102030405060708090a0b0c0d0e0f</span></code>)</p></li>
+</ul>
+<blockquote>
+<div><p>Also, make sure to select the <strong>Key in hexadecimal</strong> checkbox</p>
+</div></blockquote>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="enabling-notifications">
+<h2>Enabling notifications<a class="headerlink" href="#enabling-notifications" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><div class="line-block">
+<div class="line">Open <a class="reference external" href="https://eu.iot.avsystem.cloud/">Coiote Device Management
+server</a>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Device inventory</strong> tab in the top.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Identify your device in the list and click on the anchor text
+corresponding to the device ID in the <strong>Identity</strong> column.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click the <strong>Objects</strong> tab in the new menu to the left, just below
+<strong>Dashboard</strong>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Identify one or more objects that you want to receive notifications
+from, and expand it by clicking on them.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Identify one or more resources of the object that you want to track.</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li><p>You can track either a single resource or all the resources of an
+object. It is recommended to track only the resources that are
+expected to change.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">Click the <strong>Value Tracking</strong> button of the selected resource.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Select <strong>Observe</strong> or <strong>Monitoring</strong> from the dropdown menu.</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li><p>Selecting <strong>Observe</strong> will only update the Value field of the
+resource when it receives a notification.</p></li>
+<li><p>Selecting <strong>Monitoring</strong> will additionally create a graph of the
+logged datapoints.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Limit data usage</strong> to configure how often notifications are
+sent. For a real deployment, typical notification interval is 6h (4
+updates per day); for testing it can be used 10minutes.</div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If this interval is shorter than the PSM interval, any time
+the devices wakes up to send data, it will also perform TAU and
+reset the PSM timer. If the interval is too short (less than 2
+minutes), device will not enter sleep and the water meter data will
+not be updated, so the notification interval must be greater than 2
+minutes.</p>
+</div>
+</div></blockquote>
+</section>
+<section id="id2">
+<h2>Testing<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<p>After programming the sample to your development kit, complete the
+following steps to test it:</p>
+<ol class="arabic">
+<li><div class="line-block">
+<div class="line">Connect the kit to the computer using a USB cable. The kit is
+assigned a COM port (Windows) or ttyACM device (Linux), which is
+visible in the Device Manager.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Connect to the kit with a terminal emulator (for example, PuTTY). See
+<a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/test_and_optimize/testing.html#putty">How to connect with
+PuTTY</a>
+for the required settings.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Observe that the sample starts in the terminal window.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Check that the device is connected to the chosen LwM2M server.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Test water flow: If you have a nRF52840DK, you can connect the P0.15
+on nRF52840 DK to P0.13 on nRF9160 DK to output pulse to simulate
+water flow sensor. After you flash the <strong>pwm-pulse-count</strong> program to
+nRF52840DK, pulse waveforms with different frequency can be generated
+by pressing button1, and a measured water volume will be printed in
+the log (you can not include <code class="docutils literal notranslate"><span class="pre">overlay-lowpower.conf</span></code> file).</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Test leak detection: Press Button1 on nRF9160DK for a long time to
+simulate leak alert.</div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>if the button press time exceeds 9 seconds (configurable)will trigger leak alert and report leak event to server.</p></li>
+<li><p>If there is a leak alarm and the button press time is between 1.5 seconds and 5 seconds, the water leakage alarm will be cleared.</p></li>
+</ul>
+</div>
+</div></blockquote>
+<ol class="arabic" start="7">
+<li><div class="line-block">
+<div class="line">Test downlink command: customer can send command to reset the
+cumulated water value and pulse value on the server side. As we
+enable queue mode , so the command will be executed when the device
+next connect server.</div>
+</div>
+</li>
+</ol>
+</section>
+<section id="firmware-over-the-air-fota">
+<h2>Firmware Over-the-Air (FOTA)<a class="headerlink" href="#firmware-over-the-air-fota" title="Permalink to this heading">¶</a></h2>
+<p>You can update the firmware of the device if you are using Coiote Device
+Management server. Application firmware updates and modem firmware (both
+full and delta) updates are supported.
+To update the firmware, complete the following steps:</p>
+<ol class="arabic">
+<li><div class="line-block">
+<div class="line">Identify the firmware image file to be uploaded to the device. See
+<a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#lte-modem">LTE
+modem</a>
+and <a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#nrf9160-fota">FOTA
+upgrades</a>
+for more information.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Change
+<a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#!CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION">CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION</a>
+to a different version and rebuild the sample to generate the upgrade
+image.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Enable TLV data format:
+<a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#!CONFIG_LWM2M_RW_OMA_TLV_SUPPORT">CONFIG_LWM2M_RW_OMA_TLV_SUPPORT=y</a></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Open <a class="reference external" href="https://eu.iot.avsystem.cloud/">Coiote Device Management
+server</a> and click <strong>Update
+Firmware</strong> label.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Multi-component Firmware Update</strong>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Next</strong> to upload the image file.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><strong>Selected components</strong>, You can choose whether to upgrade the modem
+or the application in the dropdown box.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Upload Firmware</strong> in the bottom left corner and upload the
+firmware image file you generated, and fill in relevant information.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Next</strong> to config the firmware update settings in the menu ,
+Image transport type support <strong>Cops(UDP)</strong> and <strong>HTTP</strong>. we recommend
+<strong>HTTP</strong>. URI format support both <strong>DNS based</strong> and <strong>Raw IP address
+based</strong>. <strong>Timeout</strong> depends on your network condition, the recommend
+value is 60 minutes.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Next</strong> to Schedule Updates.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Schedule Update</strong> to wait the upgrade start.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Observe in the terminal window that the image file is being
+downloaded. The download will take some time. If you do not increase
+the server lifetime, the Coiote server might drop the connection to
+the device. The device reconnects later.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">When the download is complete, the device restarts on its own after
+installing the firmware. Restart the device manually if it has not
+started automatically. The device runs the updated firmware and
+reconnects to Coiote Device Management server automatically.</div>
+</div>
+</li>
+</ol>
+</section>
+<section id="measuring-power-consumption">
+<h2>Measuring power consumption<a class="headerlink" href="#measuring-power-consumption" title="Permalink to this heading">¶</a></h2>
+<p>if you want to measure power consumption, you need a <a class="reference external" href="https://infocenter.nordicsemi.com/topic/ug_ppk2/UG/ppk/PPK_user_guide_Intro.html">Power Profiler Kit
+II
+(PPK2)</a>
+and install <a class="reference external" href="https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop">nRF Connect for
+Desktop</a>.</p>
+<p><a class="reference external" href="https://infocenter.nordicsemi.com/topic/ug_ppk2/UG/ppk/PPK_user_guide_Intro.html">Power Profiler Kit II
+(PPK2)</a>
+is an affordable, flexible tool that measures the real-time power
+consumption of your designs.</p>
+<p><a class="reference external" href="https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop">nRF Connect for
+Desktop</a>
+is a cross-platform tool framework for assisting development on nRF
+devices. It contains many apps to test, monitor, measure, optimize and
+program your applications. <strong>Power Profiler</strong> app is installed as an app
+for <a class="reference external" href="https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop">nRF Connect for
+Desktop</a>.</p>
+<p>The following sections describe how to use <strong>Power Profiler</strong> app to
+measure power consumption.</p>
+<ol class="arabic">
+<li><div class="line-block">
+<div class="line">Prepare the nRF9160 DK for current measurements by doing some
+modifications to the DK.
+See the <a class="reference external" href="https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nrf91_dk%2FUG%2Fnrf91_DK%2Fprepare_board.html">nRF9160 DK User
+Guide</a>
+for instructions on how to do this.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Connect the PPK2 to the nRF9160 DK with a 4-pin measurement cable using the following pins:</div>
+<div class="line">• PPK2 VIN to P22 VDD_nRF’</div>
+<div class="line">• PPK2 VOUT to P22 VDD_nRF</div>
+<div class="line">• PPK2 GND to P21</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Connect the DK to a computer using a micro-USB cable.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Open the Power Profiler app using <a class="reference external" href="https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop">nRF Connect for
+Desktop</a>.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Click <strong>Select Device</strong> (in the top left corner) and select the PPK2
+from the list.</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line">Select <strong>Ampere meter</strong> as the mode, then click <strong>Start</strong> label to
+monitor the power consumption.</div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="additional_resources.html" class="btn btn-neutral float-right" title="Additional resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="samples.html" class="btn btn-neutral" title="Samples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+
+<table>
+<tr>
+<td>
+    <p>
+        &copy; Copyright 2023, Nordic Semiconductor.
+
+    </p>
+</td>
+<td id="nordiclogo">
+  <a href="https://www.nordicsemi.com/"><img src="_static/images/nordic.svg" border="0"/></a>
+</td>
+</tr>
+</table>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
