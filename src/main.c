@@ -308,10 +308,6 @@ void send_data_to_server(void)
 	{
 		LOG_WRN("Upload data when lwm2m connected server!\r\n");
 	}
-
-	/**Send cell location request event */
-	struct ground_fix_location_request_event *ground_fix_event = new_ground_fix_location_request_event();
-	APP_EVENT_SUBMIT(ground_fix_event);
 }
 
 
@@ -836,6 +832,11 @@ int main(void)
 		case CONNECTING:
 			LOG_INF("LwM2M is connecting to server");
 			k_mutex_unlock(&lte_mutex);
+			{
+				/**Send cell location request event */
+				struct ground_fix_location_request_event *ground_fix_event = new_ground_fix_location_request_event();
+				APP_EVENT_SUBMIT(ground_fix_event);
+			}
 			break;
 
 		case CONNECTED:
@@ -847,11 +848,6 @@ int main(void)
 			} else {
 				k_mutex_unlock(&lte_mutex);
 				LOG_INF("LwM2M is connected to server\r\n");
-
-				if(!updating_flag)		//added by Noy
-				{
-					send_data_to_server();
-				}
 
 #if defined(CONFIG_APP_LWM2M_CONFORMANCE_TESTING)
 				lwm2m_register_server_send_mute_cb();
