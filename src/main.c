@@ -511,6 +511,8 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 		return;
 	}
 
+	lwm2m_utils_connection_manage(client, &client_event);
+
 	switch (client_event) {
 	case LWM2M_RD_CLIENT_EVENT_DEREGISTER:
 	case LWM2M_RD_CLIENT_EVENT_NONE:
@@ -583,9 +585,6 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 
 	case LWM2M_RD_CLIENT_EVENT_QUEUE_MODE_RX_OFF:
 		LOG_DBG("Queue mode RX window closed");
-		if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_RAI)) {
-			lwm2m_rai_last();
-		}
 		k_mutex_unlock(&lte_mutex);
 		break;
 
