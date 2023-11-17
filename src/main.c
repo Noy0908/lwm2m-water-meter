@@ -63,6 +63,7 @@ LOG_MODULE_REGISTER(app_lwm2m_client, CONFIG_APP_LOG_LEVEL);
 #include "lwm2m_engine.h"
 #include "location_events.h"
 #include "ucifi_water_meter.h"
+#include "app.h"
 
 #if !defined(CONFIG_LTE_LINK_CONTROL)
 #error "Missing CONFIG_LTE_LINK_CONTROL"
@@ -103,7 +104,7 @@ static bool modem_connected_to_network;
 static bool update_session_lifetime = true;
 static bool ready_for_firmware_update;
 /** This flag used to indicate if the fota is ongoing*/
-static bool updating_flag = false;	
+static bool updating_flag = false;
 
 static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event client_event);
 
@@ -274,7 +275,7 @@ void send_data_to_server(void)
 	struct lwm2m_time_series_resource *cached_data = NULL;
 	cached_data = lwm2m_cache_entry_get_by_object(&LWM2M_OBJ(UCIFI_OBJECT_WATER_METER_ID, 0, WATER_METER_CUMULATED_WATER_VOLUME_RID));
 	size_t length = lwm2m_cache_size(cached_data);
-	for (size_t i = 0; i < length; i++) 
+	for (size_t i = 0; i < length; i++)
 	{
 		if (!lwm2m_cache_read(cached_data, &buf)) {
 			LOG_ERR("Read operation fail");
@@ -292,7 +293,7 @@ void send_data_to_server(void)
 		LWM2M_OBJ(UCIFI_OBJECT_WATER_METER_ID, 0, WATER_METER_CUMULATED_PULSE_VALUE_RID),
 		LWM2M_OBJ(UCIFI_OBJECT_WATER_METER_ID, 0, WATER_METER_LEAK_DETECTE_RID),
 	};
-	
+
 	/* lwm2m send post to server */
 	ret = lwm2m_send_cb(&client, send_path, ARRAY_SIZE(send_path), NULL);
 	if (ret) {
@@ -321,10 +322,10 @@ void send_leak_detection_alert(void)
 	const struct lwm2m_obj_path send_path[] = {
 		LWM2M_OBJ(UCIFI_OBJECT_WATER_METER_ID, 0, WATER_METER_LEAK_DETECTE_RID),
 	};
-	
+
 	/* lwm2m send post to server */
 	ret = lwm2m_send_cb(&client, send_path, ARRAY_SIZE(send_path), NULL);
-	if (ret) 
+	if (ret)
 	{
 		LOG_ERR("Leak alarm data send fail %d, save the data to flash!", ret);
 		/** save data fo flash if send fail*/
@@ -429,6 +430,8 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 		LOG_INF("FOTA failure %d by status %d", event->failure.obj_inst_id,
 			event->failure.update_failure);
 		break;
+	default:
+		return -1;
 	}
 	k_mutex_unlock(&lte_mutex);
 	return 0;
@@ -513,6 +516,7 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 	}
 
 	switch (client_event) {
+	case LWM2M_RD_CLIENT_EVENT_DEREGISTER:
 	case LWM2M_RD_CLIENT_EVENT_NONE:
 		/* do nothing */
 		k_mutex_unlock(&lte_mutex);
@@ -848,7 +852,7 @@ int main(void)
 				{
 					send_data_to_server();
 				}
-				
+
 #if defined(CONFIG_APP_LWM2M_CONFORMANCE_TESTING)
 				lwm2m_register_server_send_mute_cb();
 #endif

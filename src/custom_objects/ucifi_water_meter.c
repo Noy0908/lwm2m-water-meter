@@ -185,7 +185,7 @@ static struct lwm2m_engine_obj_inst *water_meter_create(uint16_t obj_inst_id)
 	// INIT_OBJ_RES(WATER_METER_CUMULATED_WATER_VOLUME_RID, res[index], i, res_inst[index], j, 1,
 	// 	     false, true, &meter_data[index].volume, sizeof(meter_data[index].volume),
 	// 	     NULL, NULL, NULL, meter_value_write_cb, NULL);
-	INIT_OBJ_RES_DATA(WATER_METER_CUMULATED_WATER_VOLUME_RID, res[index], i, res_inst[index], j, &meter_data[index].volume, 
+	INIT_OBJ_RES_DATA(WATER_METER_CUMULATED_WATER_VOLUME_RID, res[index], i, res_inst[index], j, &meter_data[index].volume,
 				sizeof(meter_data[index].volume));
 	INIT_OBJ_RES_EXECUTE(WATER_METER_CUMULATED_WATER_METER_VALUE_RESET_RID, res[index], i,
 			     reset_meter_measured_values_cb);
@@ -220,7 +220,7 @@ static struct lwm2m_engine_obj_inst *water_meter_create(uint16_t obj_inst_id)
 	return &inst[index];
 }
 
-static int ipso_water_meter_init(const struct device *dev)
+static int ipso_water_meter_init(void)
 {
 	water_meter.obj_id = UCIFI_OBJECT_WATER_METER_ID;
 	water_meter.version_major = WATER_METER_VERSION_MAJOR;
