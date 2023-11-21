@@ -1,0 +1,8 @@
+manifest:
+  projects:
+    - name: nrf
+      url: https://github.com/SeppoTakalo/sdk-nrf
+      revision: lwm2m_rai
+      import: true
+  self:
+    path: lwm2m-water-meter

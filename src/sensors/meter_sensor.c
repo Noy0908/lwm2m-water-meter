@@ -49,6 +49,7 @@
 #include <nrfx_gpiote.h>
 #include <zephyr/sys/atomic.h>
 #include "water_meter_event.h"
+#include "../app.h"
 
 LOG_MODULE_REGISTER(meter_measure,CONFIG_APP_LOG_LEVEL);
 
@@ -68,7 +69,7 @@ struct meter_data meter = {0};
 
 // static uint32_t pulse_count = 0;
 // int64_t start_time = 0;				//start time of the interrupt
-struct recoder_interval leak_recorder = { 0 };		
+struct recoder_interval leak_recorder = { 0 };
 
 static const struct gpio_dt_spec meter_pulse = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(signal1), gpios, {0});
 static const struct gpio_dt_spec leak_detection = GPIO_DT_SPEC_GET_OR(SW0_NODE, gpios,{0});
@@ -103,7 +104,7 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 			}
 			else if (leak_recorder.interval > CONFIG_MIN_LEAK_DETECTION_INTERVAL_MS) {
 				LOG_WRN("Water flow overspeed alert!!!\n");
-			} 
+			}
 			else if (leak_recorder.interval > CONFIG_NORMAL_LEAK_DETECTION_INTERVAL_MS)
 			{
 				LOG_WRN("Normal water flow!\n");
@@ -116,7 +117,7 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 					APP_EVENT_SUBMIT(alarm_event);
 				}
 			}
-		} 
+		}
 		else {
 			LOG_INF("Leak alert interrupt has been triggered, now start the time[%d]\n", gpio_pin_get_dt(&leak_detection));
 			leak_recorder.start = k_ticks_to_ms_floor64(k_uptime_ticks());
@@ -212,6 +213,3 @@ int water_meter_init(void)
 
 	return 0;
 }
-
-
-
