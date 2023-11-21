@@ -46,6 +46,7 @@
 #include "lwm2m_app_utils.h"
 #include "meter_sensor.h"
 #include "water_meter_event.h"
+#include "app.h"
 
 LOG_MODULE_REGISTER(lwm2m_water_meter,CONFIG_APP_LOG_LEVEL);
 
