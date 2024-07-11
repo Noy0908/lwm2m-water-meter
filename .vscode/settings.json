@@ -1,9 +1,7 @@
 {
   "nrf-connect.topdir": "c:\\NCS_SDK\\v2.4.0",
   "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.4.0}",
-  "nrf-connect.applications": [
-    "."
-  ],
+  "nrf-connect.applications": [],
   "files.associations": {
     "accelerometer.h": "c",
     "lwm2m_app_utils.h": "c",
@@ -16,5 +14,6 @@
     "gnss_pvt_event.h": "c",
     "water_meter_event.h": "c",
     "kernel.h": "c"
-  }
+  },
+  "iis.configDir": ""
 }
