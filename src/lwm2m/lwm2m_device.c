@@ -1,40 +1,8 @@
-/* Copyright (c) 2010 - 2017, Nordic Semiconductor ASA
-*
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-*    list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form, except as embedded into a Nordic
-*    Semiconductor ASA integrated circuit in a product or a software update for
-*    such product, must reproduce the above copyright notice, this list of
-*    conditions and the following disclaimer in the documentation and/or other
-*    materials provided with the distribution.
-*
-* 3. Neither the name of Nordic Semiconductor ASA nor the names of its
-*    contributors may be used to endorse or promote products derived from this
-*   software without specific prior written permission.
-*
-* 4. This software, with or without modification, must only be used with a
-*    Nordic Semiconductor ASA integrated circuit.
-*
-* 5. Any software provided in binary form under this license must not be reverse
-*    engineered, decompiled, modified and/or disassembled.
-*
-* THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
-* OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-* OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
-* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-* GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/*
+ * Copyright (c) 2021 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log_ctrl.h>
@@ -45,11 +13,14 @@
 #include "pm_config.h"
 #include "lwm2m_app_utils.h"
 
+#ifdef CONFIG_SOC_SERIES_NRF91X
+#include <modem/modem_info.h>
+#endif
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(app_lwm2m, CONFIG_APP_LOG_LEVEL);
 
 #define CLIENT_MODEL_NUMBER CONFIG_BOARD
-#define CLIENT_HW_VER CONFIG_SOC
 #define CLIENT_FLASH_SIZE PM_MCUBOOT_SECONDARY_SIZE
 
 #define UTC_OFFSET_STR_LEN 7 /* '+00:00' + '\0' = 7 */
@@ -79,8 +50,23 @@ static int device_factory_default_cb(uint16_t obj_inst_id, uint8_t *args, uint16
 
 int lwm2m_app_init_device(char *serial_num)
 {
-	char *client_sw_ver = (strlen(CONFIG_APP_CUSTOM_VERSION) > 0) ?
+	const void *hw_str = CONFIG_SOC;
+	uint16_t hw_str_len = sizeof(CONFIG_SOC);
+	const char *client_sw_ver = (strlen(CONFIG_APP_CUSTOM_VERSION) > 0) ?
 			      CONFIG_APP_CUSTOM_VERSION : NCS_VERSION_STRING;
+
+	if (IS_ENABLED(CONFIG_SOC_SERIES_NRF91X)) {
+		int err;
+		static char hw_buf[sizeof("nRF91__ ____ ___ ")];
+
+		err = modem_info_get_hw_version(hw_buf, sizeof(hw_buf));
+		if (err == 0) {
+			hw_str = hw_buf;
+			hw_str_len = strlen(hw_buf) + 1;
+		} else {
+			LOG_ERR("modem_info_get_hw_version() failed, err %d", err);
+		}
+	}
 
 	lwm2m_set_res_buf(&LWM2M_OBJ(LWM2M_OBJECT_DEVICE_ID, 0, MANUFACTURER_RID),
 			  CONFIG_APP_MANUFACTURER, sizeof(CONFIG_APP_MANUFACTURER),
@@ -102,13 +88,12 @@ int lwm2m_app_init_device(char *serial_num)
 			  CONFIG_APP_DEVICE_TYPE, sizeof(CONFIG_APP_DEVICE_TYPE),
 			  sizeof(CONFIG_APP_DEVICE_TYPE), LWM2M_RES_DATA_FLAG_RO);
 	lwm2m_set_res_buf(&LWM2M_OBJ(LWM2M_OBJECT_DEVICE_ID, 0, HARDWARE_VERSION_RID),
-			  CLIENT_HW_VER, sizeof(CLIENT_HW_VER), sizeof(CLIENT_HW_VER),
-			  LWM2M_RES_DATA_FLAG_RO);
+			  (void *)hw_str, hw_str_len, hw_str_len, LWM2M_RES_DATA_FLAG_RO);
 	lwm2m_set_res_buf(&LWM2M_OBJ(LWM2M_OBJECT_DEVICE_ID, 0, SOFTWARE_VERSION_RID),
-			  client_sw_ver, strlen(client_sw_ver) + 1,
+			  (void *)client_sw_ver, strlen(client_sw_ver) + 1,
 			  strlen(client_sw_ver) + 1, LWM2M_RES_DATA_FLAG_RO);
-	lwm2m_set_res_buf(&LWM2M_OBJ(LWM2M_OBJECT_DEVICE_ID, 0, BATTERY_STATUS_RID),
-			  &bat_status, sizeof(bat_status), sizeof(bat_status), 0);
+	lwm2m_set_res_buf(&LWM2M_OBJ(LWM2M_OBJECT_DEVICE_ID, 0, BATTERY_STATUS_RID), &bat_status,
+			  sizeof(bat_status), sizeof(bat_status), 0);
 	lwm2m_set_res_buf(&LWM2M_OBJ(LWM2M_OBJECT_DEVICE_ID, 0, MEMORY_TOTAL_RID),
 			  &mem_total, sizeof(mem_total), sizeof(mem_total), 0);
 

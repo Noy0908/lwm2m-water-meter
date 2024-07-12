@@ -52,11 +52,6 @@
 
 LOG_MODULE_REGISTER(meter_measure,CONFIG_APP_LOG_LEVEL);
 
-// /* size of stack area used by each thread */
-// #define STACKSIZE 1024
-// /* scheduling priority used by each thread */
-// #define PRIORITY 7
-
 
 #define SW0_NODE	DT_ALIAS(sw0)
 #if !DT_NODE_HAS_STATUS(SW0_NODE, okay)
@@ -65,13 +60,15 @@ LOG_MODULE_REGISTER(meter_measure,CONFIG_APP_LOG_LEVEL);
 
 
 struct meter_data meter = {0};
-
-// static uint32_t pulse_count = 0;
-// int64_t start_time = 0;				//start time of the interrupt
 struct recoder_interval leak_recorder = { 0 };		
 
-static const struct gpio_dt_spec meter_pulse = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(signal1), gpios, {0});
+// static const struct gpio_dt_spec meter_pulse = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(signal1), gpios, {0});
 static const struct gpio_dt_spec leak_detection = GPIO_DT_SPEC_GET_OR(SW0_NODE, gpios,{0});
+
+static const nrfx_gpiote_pin_t meter_pulse_pin = NRF_DT_GPIOS_TO_PSEL(DT_NODELABEL(signal1), gpios);
+static const nrfx_gpiote_pin_t leak_detection_pin = NRF_DT_GPIOS_TO_PSEL(DT_ALIAS(sw0), gpios);
+static const nrfx_gpiote_t meter_inst = NRFX_GPIOTE_INSTANCE(NRF_DT_GPIOTE_INST(DT_NODELABEL(signal1), gpios));
+static const nrfx_gpiote_t leak_inst = NRFX_GPIOTE_INSTANCE(NRF_DT_GPIOTE_INST(DT_ALIAS(sw0), gpios));
 
 int meter_setting_data_save(void);
 
@@ -80,15 +77,17 @@ int meter_setting_data_save(void);
  */
 static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *context)
 {
-	if (pin == meter_pulse.pin)
+	if (pin == meter_pulse_pin)
 	{
 		// LOG_DBG("count meter pulse %d\n", meter.pulse_value);
 		meter.pulse_value++;
 	}
-	else if (pin == leak_detection.pin)
+	else if (pin == leak_detection_pin)
 	{
-		if (gpio_pin_get_dt(&leak_detection)) {
-			LOG_INF("Leak alert interrupt has stopped, now end the time[%d]\n", gpio_pin_get_dt(&leak_detection));
+		if (gpio_pin_get_dt(&leak_detection)) 
+		// if (trigger == NRFX_GPIOTE_TRIGGER_LOTOHI)	/* LOTOHI */
+		{
+			LOG_INF("Leak alert interrupt has stopped, now end the time[LOTOHI]\n");
 			leak_recorder.end = k_ticks_to_ms_floor64(k_uptime_ticks());
 			leak_recorder.interval = leak_recorder.end - leak_recorder.start;
 			LOG_INF("start=%lld\t end=%lld\t interval=%lld\n", leak_recorder.start,leak_recorder.end,leak_recorder.interval);
@@ -117,8 +116,10 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 				}
 			}
 		} 
-		else {
-			LOG_INF("Leak alert interrupt has been triggered, now start the time[%d]\n", gpio_pin_get_dt(&leak_detection));
+		// else if (trigger == NRFX_GPIOTE_TRIGGER_HITOLO)	/* HiTOLO */
+		else
+		{	/* HITOLO */
+			LOG_INF("Leak alert interrupt has been triggered, now start the time[HITOLO]\n");
 			leak_recorder.start = k_ticks_to_ms_floor64(k_uptime_ticks());
 		}
 	}
@@ -126,7 +127,7 @@ static void meter_event_handler(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t tri
 
 
 
-
+extern void send_data_to_server(void);
 void clean_meter_data(uint16_t res_id)
 {
 	LOG_INF("Excute reset operation, res_id=%d\n",res_id
@@ -160,6 +161,8 @@ struct meter_data get_water_meter_volume(void)
 }
 
 
+
+#if 0
 int water_meter_init(void)
 {
 	int err = 0;
@@ -212,6 +215,99 @@ int water_meter_init(void)
 
 	return 0;
 }
+#endif
+
+int water_meter_init(void)
+{
+	int err = 0;
+
+	// if (!device_is_ready(meter_pulse.port)) {
+	// 	LOG_ERR("Error: measure device %s is not ready\n", meter_pulse.port->name);
+	// 	return -1;
+	// }
+
+	// if (!device_is_ready(leak_detection.port)) {
+	// 	printk("Error: button device %s is not ready\n",leak_detection.port->name);
+	// 	return -1;
+	// }
+	
+	// Configure GPIOTE channeles to generate interrupts on kinds of falling edge
+	// to simulate the pulse count and leak alarm
+	nrfx_gpiote_handler_config_t handler_config = {
+        .handler = meter_event_handler,
+    };
+	static const nrf_gpio_pin_pull_t pulse_pull_config = NRF_GPIO_PIN_NOPULL;
+    nrfx_gpiote_trigger_config_t pulse_trigger_config = {
+        .trigger = NRFX_GPIOTE_TRIGGER_LOTOHI,
+        .p_in_channel = NULL
+    };
+    nrfx_gpiote_input_pin_config_t pulse_config = {
+        .p_pull_config    = &pulse_pull_config,
+        .p_trigger_config = &pulse_trigger_config,
+        .p_handler_config = &handler_config
+    };
+
+    err = nrfx_gpiote_input_configure(&meter_inst, meter_pulse_pin, &pulse_config);
+
+
+	static const nrf_gpio_pin_pull_t leak_pull_config = NRF_GPIO_PIN_PULLUP;
+	const nrfx_gpiote_trigger_config_t leak_trigger_config = {
+		.trigger = NRFX_GPIOTE_TRIGGER_TOGGLE,
+		.p_in_channel = NULL,
+	};
+	nrfx_gpiote_input_pin_config_t leak_config = {
+        .p_pull_config    = &leak_pull_config,
+        .p_trigger_config = &leak_trigger_config,
+        .p_handler_config = &handler_config
+    };
+	err = nrfx_gpiote_input_configure(&leak_inst, leak_detection_pin, &leak_config);
+
+	k_sleep(K_MSEC(800));
+	nrfx_gpiote_trigger_enable(&meter_inst,meter_pulse_pin, true);
+	nrfx_gpiote_trigger_enable(&leak_inst,leak_detection_pin, true);
+
+
+
+
+	// static const nrfx_gpiote_input_config_t input_config = {
+	// 	.pull = NRF_GPIO_PIN_NOPULL,
+	// };
+	// const nrfx_gpiote_trigger_config_t trigger_config = {
+	// 	.trigger = NRFX_GPIOTE_TRIGGER_LOTOHI,
+	// 	.p_in_channel = NULL,
+	// };
+
+	// static const nrfx_gpiote_handler_config_t handler_config = {
+	// 	.handler = meter_event_handler,
+	// };
+	// err = nrfx_gpiote_input_configure((nrfx_gpiote_pin_t)meter_pulse.pin, &input_config,
+	// 				  &trigger_config, &handler_config);
+	// if (err != NRFX_SUCCESS) {
+	// 	LOG_ERR("nrfx_gpiote_input_configure error: 0x%08X", err);
+	// 	return -1;
+	// }
+
+	// static const nrfx_gpiote_input_config_t leak_input_config = {
+	// 	.pull = NRF_GPIO_PIN_PULLUP,
+	// };
+	// const nrfx_gpiote_trigger_config_t leak_trigger_config = {
+	// 	.trigger = NRFX_GPIOTE_TRIGGER_TOGGLE,
+	// 	.p_in_channel = NULL,
+	// };
+	// err = nrfx_gpiote_input_configure((nrfx_gpiote_pin_t)leak_detection.pin, &leak_input_config,
+	// 				  &leak_trigger_config, &handler_config);
+	// if (err != NRFX_SUCCESS) {
+	// 	LOG_ERR("nrfx_gpiote_input_configure error: 0x%08X", err);
+	// 	return -1;
+	// }
+
+	// k_sleep(K_MSEC(800));
+	// nrfx_gpiote_trigger_enable((nrfx_gpiote_pin_t)meter_pulse.pin, true);
+	// nrfx_gpiote_trigger_enable((nrfx_gpiote_pin_t)leak_detection.pin, true);
+
+	return 0;
+}
+
 
 
 

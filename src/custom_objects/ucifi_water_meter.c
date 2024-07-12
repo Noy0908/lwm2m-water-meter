@@ -220,7 +220,7 @@ static struct lwm2m_engine_obj_inst *water_meter_create(uint16_t obj_inst_id)
 	return &inst[index];
 }
 
-static int ipso_water_meter_init(const struct device *dev)
+static int ipso_water_meter_init(void)
 {
 	water_meter.obj_id = UCIFI_OBJECT_WATER_METER_ID;
 	water_meter.version_major = WATER_METER_VERSION_MAJOR;

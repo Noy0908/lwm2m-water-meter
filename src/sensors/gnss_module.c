@@ -126,7 +126,7 @@ static void gnss_event_handler(int event_id)
 		APP_EVENT_SUBMIT(event);
 		break;
 		}
-	case NRF_MODEM_GNSS_EVT_AGPS_REQ: {
+	case NRF_MODEM_GNSS_EVT_AGNSS_REQ: {
 #if defined(CONFIG_LWM2M_CLIENT_UTILS_LOCATION_ASSIST_AGPS) || \
 defined(CONFIG_LWM2M_CLIENT_UTILS_LOCATION_ASSIST_PGPS)
 		LOG_INF("GPS requests AGPS Data. Sending request to LwM2M server");

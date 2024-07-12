@@ -81,4 +81,6 @@ int sensor_module_init(void)
 	return 0;
 }
 
+LWM2M_APP_INIT(sensor_module_init);
+
 

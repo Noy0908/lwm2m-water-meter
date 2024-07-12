@@ -43,7 +43,6 @@
 #include <zephyr/net/lwm2m.h>
 #include <modem/nrf_modem_lib.h>
 #include <zephyr/settings/settings.h>
-
 #include <net/lwm2m_client_utils.h>
 #include <app_event_manager.h>
 #include <net/lwm2m_client_utils_location.h>
@@ -55,10 +54,9 @@ LOG_MODULE_REGISTER(app_lwm2m_client, CONFIG_APP_LOG_LEVEL);
 #include <modem/lte_lc.h>
 #include <modem/modem_info.h>
 #include <nrf_modem_at.h>
-
+#include "meter_sensor.h"
 #include "lwm2m_client_app.h"
 #include "lwm2m_app_utils.h"
-#include "sensor_module.h"
 #include "gnss_module.h"
 #include "lwm2m_engine.h"
 #include "location_events.h"
@@ -89,6 +87,7 @@ static enum client_state {
 	CONNECTED,	/* LwM2M Client connection establisment to server */
 	LTE_OFFLINE,	/* LTE offline and LwM2M engine should be suspended */
 	UPDATE_FIRMWARE, /* Prepare app ready for firmware update */
+	RECONNECT_AFTER_UPDATE, /* Reconnect client after modem update */
 	NETWORK_ERROR	/* Client network error handling. Client stop and modem reset */
 } client_state = START;
 
@@ -106,6 +105,7 @@ static bool ready_for_firmware_update;
 static bool updating_flag = false;	
 
 static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event client_event);
+static void state_trigger_and_unlock(enum client_state new_state);
 
 int meter_setting_data_save(void);
 
@@ -333,6 +333,91 @@ void send_leak_detection_alert(void)
 }
 
 
+
+#if defined(CONFIG_LWM2M_CLIENT_UTILS_FIRMWARE_UPDATE_OBJ_SUPPORT)
+static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
+{
+	k_mutex_lock(&lte_mutex, K_FOREVER);
+	switch (event->id) {
+	case LWM2M_FOTA_DOWNLOAD_START:
+		ready_for_firmware_update = false;
+		LOG_INF("FOTA download started for instance %d", event->download_start.obj_inst_id);
+		break;
+	/** FOTA download process finished */
+	case LWM2M_FOTA_DOWNLOAD_FINISHED:
+		LOG_INF("FOTA download ready for instance %d, dfu_type %d",
+			event->download_ready.obj_inst_id, event->download_ready.dfu_type);
+		break;
+	/** FOTA update new image */
+	case LWM2M_FOTA_UPDATE_IMAGE_REQ:
+		if (!ready_for_firmware_update && event->update_req.obj_inst_id < 2) {
+			state_trigger_and_unlock(UPDATE_FIRMWARE);
+			/* Postpone request by 2 seconds */
+			return 2;
+		}
+		LOG_INF("FOTA Update request for instance %d", event->update_req.obj_inst_id);
+
+		break;
+	case LWM2M_FOTA_UPDATE_MODEM_RECONNECT_REQ:
+		ready_for_firmware_update = false;
+		state_trigger_and_unlock(RECONNECT_AFTER_UPDATE);
+		/* Indicate that app can support Modem Reconnect */
+		return 0;
+	/** Fota process fail or cancelled  */
+	case LWM2M_FOTA_UPDATE_ERROR:
+		ready_for_firmware_update = false;
+		LOG_INF("FOTA failure %d by status %d", event->failure.obj_inst_id,
+			event->failure.update_failure);
+		break;
+	}
+	k_mutex_unlock(&lte_mutex);
+	return 0;
+}
+#endif
+
+
+static int lwm2m_setup(void)
+{
+	/* Save power by not updating timestamp on device object */
+	lwm2m_update_device_service_period(0);
+
+	/* Manufacturer dependent */
+	/* use IMEI as serial number */
+	lwm2m_app_init_device(imei_buf);
+	lwm2m_init_security(&client, endpoint_name, NULL);
+
+	if (sizeof(CONFIG_APP_LWM2M_PSK) > 1) {
+		/* Write hard-coded PSK key to engine */
+		/* First security instance is the right one, because in bootstrap mode, */
+		/* it is the bootstrap PSK. In normal mode, it is the server key */
+		lwm2m_security_set_psk(0, CONFIG_APP_LWM2M_PSK, sizeof(CONFIG_APP_LWM2M_PSK), true,
+				       endpoint_name);
+	}
+
+#if defined(CONFIG_LWM2M_CLIENT_UTILS_FIRMWARE_UPDATE_OBJ_SUPPORT)
+	lwm2m_init_firmware_cb(lwm2m_firmware_event_cb);
+#endif
+
+#if defined(CONFIG_LWM2M_APP_WATER_METER)
+	lwm2m_init_water_meter();
+#endif
+
+#if defined(CONFIG_LWM2M_CLIENT_UTILS_LOCATION_ASSISTANCE)
+	location_event_handler_init(&client);
+	location_assistance_retry_init(true);
+#endif
+	if (IS_ENABLED(CONFIG_LTE_LC_TAU_PRE_WARNING_NOTIFICATIONS) ||
+	    IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_NEIGHBOUR_CELL_LISTENER)) {
+		lwm2m_ncell_handler_register();
+	}
+
+	// if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_RAI)) {
+	// 	lwm2m_init_rai();
+	// }
+
+	return 0;
+}
+
 static void date_time_event_handler(const struct date_time_evt *evt)
 {
 	switch (evt->type) {
@@ -397,99 +482,7 @@ static void state_trigger_and_unlock(enum client_state new_state)
 	k_mutex_unlock(&lte_mutex);
 }
 
-#if defined(CONFIG_LWM2M_CLIENT_UTILS_FIRMWARE_UPDATE_OBJ_SUPPORT)
-static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
-{
-	k_mutex_lock(&lte_mutex, K_FOREVER);
-	switch (event->id) {
-	case LWM2M_FOTA_DOWNLOAD_START:
-		updating_flag = true;
-		LOG_INF("FOTA download started for instance %d", event->download_start.obj_inst_id);
-		break;
-	/** FOTA download process finished */
-	case LWM2M_FOTA_DOWNLOAD_FINISHED:
-		updating_flag = false;
-		LOG_INF("FOTA download ready for instance %d, dfu_type %d",
-			event->download_ready.obj_inst_id, event->download_ready.dfu_type);
-		break;
-	/** FOTA update new image */
-	case LWM2M_FOTA_UPDATE_IMAGE_REQ:
-		updating_flag = false;
-		if (!ready_for_firmware_update) {
-			state_trigger_and_unlock(UPDATE_FIRMWARE);
-			/* Postpone request by 2 seconds */
-			return 2;
-		}
-		LOG_INF("FOTA Update request for instance %d", event->update_req.obj_inst_id);
 
-		break;
-	/** Fota process fail or cancelled  */
-	case LWM2M_FOTA_UPDATE_ERROR:
-		updating_flag = false;			//added by Noy
-		LOG_INF("FOTA failure %d by status %d", event->failure.obj_inst_id,
-			event->failure.update_failure);
-		break;
-	}
-	k_mutex_unlock(&lte_mutex);
-	return 0;
-}
-
-#endif
-
-
-static int lwm2m_setup(void)
-{
-#if defined(CONFIG_LWM2M_CLIENT_UTILS_DEVICE_OBJ_SUPPORT)
-	/* Manufacturer independent */
-	lwm2m_init_device();
-#endif
-
-	/* Manufacturer dependent */
-	/* use IMEI as serial number */
-	lwm2m_app_init_device(imei_buf);
-	lwm2m_init_security(&client, endpoint_name, NULL);
-
-	if (sizeof(CONFIG_APP_LWM2M_PSK) > 1) {
-		/* Write hard-coded PSK key to engine */
-		/* First security instance is the right one, because in bootstrap mode, */
-		/* it is the bootstrap PSK. In normal mode, it is the server key */
-		lwm2m_security_set_psk(0, CONFIG_APP_LWM2M_PSK, sizeof(CONFIG_APP_LWM2M_PSK), true,
-				       endpoint_name);
-	}
-
-#if defined(CONFIG_LWM2M_CLIENT_UTILS_FIRMWARE_UPDATE_OBJ_SUPPORT)
-	lwm2m_init_firmware_cb(lwm2m_firmware_event_cb);
-#endif
-
-#if defined(CONFIG_LWM2M_APP_WATER_METER)
-	lwm2m_init_water_meter();
-#endif
-
-
-
-#if defined(CONFIG_LWM2M_PORTFOLIO_OBJ_SUPPORT)
-	lwm2m_init_portfolio_object();
-#endif
-
-#if defined(CONFIG_LWM2M_CLIENT_UTILS_LOCATION_ASSISTANCE)
-	location_event_handler_init(&client);
-	location_assistance_init_resend_handler();
-#endif
-
-#if defined(CONFIG_LWM2M_CLIENT_UTILS_CELL_CONN_OBJ_SUPPORT)
-	lwm2m_init_cellular_connectivity_object();
-#endif
-	if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_RAI)) {
-		lwm2m_init_rai();
-	}
-
-	if (IS_ENABLED(CONFIG_LTE_LC_TAU_PRE_WARNING_NOTIFICATIONS) ||
-	    IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_NEIGHBOUR_CELL_LISTENER)) {
-		lwm2m_ncell_handler_register();
-	}
-
-	return 0;
-}
 
 static void state_set_and_unlock(enum client_state new_state)
 {
@@ -497,22 +490,23 @@ static void state_set_and_unlock(enum client_state new_state)
 	k_mutex_unlock(&lte_mutex);
 }
 
+
+
 static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event client_event)
 {
 	k_mutex_lock(&lte_mutex, K_FOREVER);
 
-	if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_LTE_CONNEVAL)) {
-		lwm2m_utils_conneval(client, &client_event);
-	}
-
-	if (client_state == LTE_OFFLINE &&
-	    client_event != LWM2M_RD_CLIENT_EVENT_ENGINE_SUSPENDED) {
+	if (client_state == LTE_OFFLINE && client_event != LWM2M_RD_CLIENT_EVENT_ENGINE_SUSPENDED) {
 		LOG_DBG("Drop network event %d at LTE offline state", client_event);
 		k_mutex_unlock(&lte_mutex);
 		return;
 	}
 
+	lwm2m_utils_connection_manage(client, &client_event);
+
 	switch (client_event) {
+	case LWM2M_RD_CLIENT_EVENT_SERVER_DISABLED:
+	case LWM2M_RD_CLIENT_EVENT_DEREGISTER:
 	case LWM2M_RD_CLIENT_EVENT_NONE:
 		/* do nothing */
 		k_mutex_unlock(&lte_mutex);
@@ -536,7 +530,7 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 
 	case LWM2M_RD_CLIENT_EVENT_REGISTRATION_FAILURE:
 		LOG_WRN("Registration failure!");
-		state_trigger_and_unlock(NETWORK_ERROR);
+		state_trigger_and_unlock(CONNECTING);
 		break;
 
 	case LWM2M_RD_CLIENT_EVENT_REGISTRATION_COMPLETE:
@@ -553,7 +547,7 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 
 	case LWM2M_RD_CLIENT_EVENT_REG_TIMEOUT:
 		LOG_DBG("Registration update failure!");
-		state_trigger_and_unlock(NETWORK_ERROR);
+		state_trigger_and_unlock(CONNECTING);
 		break;
 
 	case LWM2M_RD_CLIENT_EVENT_REG_UPDATE:
@@ -570,22 +564,28 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 
 	case LWM2M_RD_CLIENT_EVENT_DEREGISTER_FAILURE:
 		LOG_DBG("Deregister failure!");
+		if (client_state != UPDATE_FIRMWARE) {
+			state_set_and_unlock(START);
+		} else {
+			k_mutex_unlock(&lte_mutex);
+		}
 		reconnect = true;
-		state_trigger_and_unlock(NETWORK_ERROR);
 		break;
 
 	case LWM2M_RD_CLIENT_EVENT_DISCONNECT:
 		LOG_DBG("Disconnected");
-		if (client_state != UPDATE_FIRMWARE) {
+		if (client_state != UPDATE_FIRMWARE && client_state != RECONNECT_AFTER_UPDATE) {
 			state_set_and_unlock(START);
+		} else {
+			k_mutex_unlock(&lte_mutex);
 		}
 		break;
 
 	case LWM2M_RD_CLIENT_EVENT_QUEUE_MODE_RX_OFF:
 		LOG_DBG("Queue mode RX window closed");
-		if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_RAI)) {
-			lwm2m_rai_last();
-		}
+		// if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_RAI)) {
+		// 	lwm2m_rai_last();
+		// }
 		k_mutex_unlock(&lte_mutex);
 		break;
 
@@ -602,28 +602,12 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 	}
 }
 
+
 static void modem_connect(void)
 {
 	int ret;
 
-#if defined(CONFIG_LWM2M_QUEUE_MODE_ENABLED)
-	if (!IS_ENABLED(CONFIG_LTE_EDRX_REQ)) {
-		ret = lte_lc_edrx_req(false);
-		if (ret < 0) {
-			LOG_ERR("EDRX request error %d", ret);
-		}
-	}
-
-	ret = lte_lc_psm_req(true);
-	if (ret < 0) {
-		LOG_ERR("lte_lc_psm_req, error: (%d)", ret);
-	} else {
-		LOG_INF("PSM mode requested");
-	}
-#endif
-
 	do {
-
 		LOG_INF("Connecting to network.");
 		LOG_INF("This may take several minutes.");
 
@@ -677,12 +661,30 @@ static void lwm2m_lte_reg_handler_notify(enum lte_lc_nw_reg_status nw_reg_status
 	lte_registered = lte_connected(nw_reg_status);
 	if (lte_registered != modem_connected_to_network) {
 		modem_connected_to_network = lte_registered;
-		if (client_state != START && client_state != BOOTSTRAP) {
+		if (client_state != START && client_state != BOOTSTRAP &&
+		    client_state != UPDATE_FIRMWARE && client_state != RECONNECT_AFTER_UPDATE) {
 			k_sem_give(&state_mutex);
 		}
 	}
 	k_mutex_unlock(&lte_mutex);
 }
+
+#ifdef CONFIG_LTE_LC_MODEM_SLEEP_NOTIFICATIONS
+static void lte_modem_enter_sleep(const struct lte_lc_modem_sleep *event)
+{
+	switch (event->type) {
+	case LTE_LC_MODEM_SLEEP_PSM:
+	case LTE_LC_MODEM_SLEEP_PROPRIETARY_PSM:
+		LOG_INF("Modem Enter PSM, time %lld", event->time);
+		break;
+	case LTE_LC_MODEM_SLEEP_RF_INACTIVITY:
+		LOG_INF("Modem Enter eDRX state, time %lld", event->time);
+		break;
+	default:
+		break;
+	}
+}
+#endif
 
 static void lte_notify_handler(const struct lte_lc_evt *const evt)
 {
@@ -690,6 +692,11 @@ static void lte_notify_handler(const struct lte_lc_evt *const evt)
 	case LTE_LC_EVT_NW_REG_STATUS:
 		lwm2m_lte_reg_handler_notify(evt->nw_reg_status);
 		break;
+#ifdef CONFIG_LTE_LC_MODEM_SLEEP_NOTIFICATIONS
+	case LTE_LC_EVT_MODEM_SLEEP_ENTER:
+		lte_modem_enter_sleep(&evt->modem_sleep);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -716,24 +723,23 @@ int main(void)
 
 	LOG_WRN("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION);
 
-#if !defined(CONFIG_NRF_MODEM_LIB_SYS_INIT)
 	ret = nrf_modem_lib_init();
 	if (ret < 0) {
 		LOG_ERR("Unable to init modem library (%d)", ret);
 		return 0;
 	}
-#endif
+
+	// if (IS_ENABLED(CONFIG_APP_SMP_CLIENT_FOTA_EXTERNAL)) {
+	// 	ret = fota_external_init();
+	// 	if (ret < 0) {
+	// 		LOG_ERR("Unable to init Fota external client (%d)", ret);
+	// 		return 0;
+	// 	}
+	// }
 
 	ret = app_event_manager_init();
 	if (ret) {
 		LOG_ERR("Unable to init Application Event Manager (%d)", ret);
-		return 0;
-	}
-
-	LOG_INF("Initializing modem.");
-	ret = lte_lc_init();
-	if (ret < 0) {
-		LOG_ERR("Unable to init modem (%d)", ret);
 		return 0;
 	}
 
@@ -753,8 +759,7 @@ int main(void)
 	}
 
 	/* use IMEI as unique endpoint name */
-	snprintk(endpoint_name, sizeof(endpoint_name), "%s%s", CONFIG_APP_ENDPOINT_PREFIX,
-		 imei_buf);
+	snprintk(endpoint_name, sizeof(endpoint_name), "%s%.*s", CONFIG_APP_ENDPOINT_PREFIX, IMEI_LEN, imei_buf);
 	LOG_INF("endpoint: %s", (char *)endpoint_name);
 
 	/* Setup LwM2M */
@@ -785,12 +790,6 @@ int main(void)
 	initialise_gnss();
 #endif
 
-#ifdef CONFIG_SENSOR_MODULE
-	ret = sensor_module_init();
-	if (ret) {
-		LOG_ERR("Could not initialize sensor module (%d)", ret);
-	}
-#endif
 
 #if defined(CONFIG_LWM2M_CLIENT_UTILS_SIGNAL_MEAS_INFO_OBJ_SUPPORT)
 	k_work_init_delayable(&ncell_meas_work, ncell_meas_work_handler);
@@ -819,9 +818,13 @@ int main(void)
 		switch (client_state) {
 		case START:
 			LOG_INF("Client connect to server");
-			state_set_and_unlock(CONNECTING);
 			lwm2m_rd_client_start(&client, endpoint_name, bootstrap_flags,
 					      rd_client_event, NULL);
+			if (ret) {
+				state_trigger_and_unlock(NETWORK_ERROR);
+			} else {
+				state_trigger_and_unlock(CONNECTING);
+			}
 			break;
 
 		case BOOTSTRAP:
@@ -875,12 +878,15 @@ int main(void)
 			LOG_INF("Prepare for Firmware update: Stop client and disbale Modem");
 			k_mutex_unlock(&lte_mutex);
 			lwm2m_rd_client_stop(&client, NULL, false);
-			ret = lte_lc_offline();
-			if (ret < 0) {
-				LOG_ERR("Failed to put LTE link in offline state (%d)", ret);
-			}
 			ready_for_firmware_update = true;
 			LOG_INF("App ready for firmware update");
+			break;
+
+		case RECONNECT_AFTER_UPDATE:
+			/* Enable client reconnect */
+			LOG_INF("Restart modem and client after an update");
+			state_trigger_and_unlock(START);
+			modem_connect();
 			break;
 
 		case NETWORK_ERROR:
