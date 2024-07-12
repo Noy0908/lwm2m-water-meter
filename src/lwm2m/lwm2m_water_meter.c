@@ -107,7 +107,7 @@ void update_water_meter_value(struct meter_data val)
 
 
 
-extern void send_leak_detection_alert(void);
+extern void send_data_to_server(void);
 static bool water_meter_event_handler(const struct app_event_header *aeh)
 {
 	if (is_water_meter_event(aeh)) 
@@ -122,7 +122,8 @@ static bool water_meter_event_handler(const struct app_event_header *aeh)
 			lwm2m_set_bool(&LWM2M_OBJ(UCIFI_OBJECT_WATER_METER_ID, 0, WATER_METER_LEAK_DETECTE_RID), false);
 		}
 
-		send_leak_detection_alert();
+		// send_leak_detection_alert();
+		send_data_to_server();
 
 		return true;
 	}

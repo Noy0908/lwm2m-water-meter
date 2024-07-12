@@ -309,8 +309,8 @@ void send_data_to_server(void)
 	}
 
 	/**Send cell location request event */
-	struct ground_fix_location_request_event *ground_fix_event = new_ground_fix_location_request_event();
-	APP_EVENT_SUBMIT(ground_fix_event);
+	// struct ground_fix_location_request_event *ground_fix_event = new_ground_fix_location_request_event();
+	// APP_EVENT_SUBMIT(ground_fix_event);
 }
 
 
@@ -340,16 +340,19 @@ static int lwm2m_firmware_event_cb(struct lwm2m_fota_event *event)
 	k_mutex_lock(&lte_mutex, K_FOREVER);
 	switch (event->id) {
 	case LWM2M_FOTA_DOWNLOAD_START:
+		updating_flag = true;
 		ready_for_firmware_update = false;
 		LOG_INF("FOTA download started for instance %d", event->download_start.obj_inst_id);
 		break;
 	/** FOTA download process finished */
 	case LWM2M_FOTA_DOWNLOAD_FINISHED:
+		updating_flag = false;
 		LOG_INF("FOTA download ready for instance %d, dfu_type %d",
 			event->download_ready.obj_inst_id, event->download_ready.dfu_type);
 		break;
 	/** FOTA update new image */
 	case LWM2M_FOTA_UPDATE_IMAGE_REQ:
+		updating_flag = false;
 		if (!ready_for_firmware_update && event->update_req.obj_inst_id < 2) {
 			state_trigger_and_unlock(UPDATE_FIRMWARE);
 			/* Postpone request by 2 seconds */
@@ -583,9 +586,6 @@ static void rd_client_event(struct lwm2m_ctx *client, enum lwm2m_rd_client_event
 
 	case LWM2M_RD_CLIENT_EVENT_QUEUE_MODE_RX_OFF:
 		LOG_DBG("Queue mode RX window closed");
-		// if (IS_ENABLED(CONFIG_LWM2M_CLIENT_UTILS_RAI)) {
-		// 	lwm2m_rai_last();
-		// }
 		k_mutex_unlock(&lte_mutex);
 		break;
 
@@ -721,7 +721,7 @@ int main(void)
 	int ret;
 	uint32_t bootstrap_flags = 0;
 
-	LOG_WRN("Run LWM2M client,version is %s\n", CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION);
+	LOG_WRN("Run LWM2M water meter,version is %s\n", CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION);
 
 	ret = nrf_modem_lib_init();
 	if (ret < 0) {
@@ -834,7 +834,7 @@ int main(void)
 
 		case CONNECTING:
 			LOG_INF("LwM2M is connecting to server");
-			k_mutex_unlock(&lte_mutex);
+			k_mutex_unlock(&lte_mutex);	
 			break;
 
 		case CONNECTED:
@@ -842,7 +842,7 @@ int main(void)
 				/* LTE connection down suspend LwM2M engine */
 				LOG_INF("LwM2M is suspended!!!\r\n");
 				suspend_lwm2m_engine();
-				//dave data to flash
+				//save data to flash
 			} else {
 				k_mutex_unlock(&lte_mutex);
 				LOG_INF("LwM2M is connected to server\r\n");
@@ -851,6 +851,10 @@ int main(void)
 				{
 					send_data_to_server();
 				}
+
+				/**Send cell location request event */
+				struct ground_fix_location_request_event *ground_fix_event = new_ground_fix_location_request_event();
+				APP_EVENT_SUBMIT(ground_fix_event);
 				
 #if defined(CONFIG_APP_LWM2M_CONFORMANCE_TESTING)
 				lwm2m_register_server_send_mute_cb();
