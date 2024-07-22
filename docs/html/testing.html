@@ -227,7 +227,7 @@ for the required settings.</div>
 <li><div class="line-block">
 <div class="line">Test water flow: If you have a nRF52840DK, you can connect the P0.15
 on nRF52840 DK to P0.13 on nRF9160 DK to output pulse to simulate
-water flow sensor. After you flash the <strong>pwm-pulse-count</strong> program to
+water flow sensor, for nRF9151DK, the corresponding pin is P0.06. After you flash the <strong>pwm-pulse-count</strong> program to
 nRF52840DK, pulse waveforms with different frequency can be generated
 by pressing button1, and a measured water volume will be printed in
 the log (you can not include <code class="docutils literal notranslate"><span class="pre">overlay-lowpower.conf</span></code> file).</div>
@@ -267,16 +267,14 @@ To update the firmware, complete the following steps:</p>
 <ol class="arabic">
 <li><div class="line-block">
 <div class="line">Identify the firmware image file to be uploaded to the device. See
-<a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#lte-modem">LTE
-modem</a>
-and <a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#nrf9160-fota">FOTA
+<a class="reference external" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/device_guides/nrf91/nrf91_features.html">LTE and FOTA
 upgrades</a>
 for more information.</div>
 </div>
 </li>
 <li><div class="line-block">
 <div class="line">Change
-<a class="reference external" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#!CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION">CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION</a>
+<a class="reference external" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/kconfig/index.html#!CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION">CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION</a>
 to a different version and rebuild the sample to generate the upgrade
 image.</div>
 </div>
@@ -313,7 +311,7 @@ firmware image file you generated, and fill in relevant information.</div>
 <li><div class="line-block">
 <div class="line">Click <strong>Next</strong> to config the firmware update settings in the menu ,
 Image transport type support <strong>Cops(UDP)</strong> and <strong>HTTP</strong>. we recommend
-<strong>HTTP</strong>. URI format support both <strong>DNS based</strong> and <strong>Raw IP address
+<strong>HTTP</strong> with <strong>Pull</strong> delivery mode. URI format support both <strong>DNS based</strong> and <strong>Raw IP address
 based</strong>. <strong>Timeout</strong> depends on your network condition, the recommend
 value is 60 minutes.</div>
 </div>

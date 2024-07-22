@@ -50,7 +50,9 @@ alarm message to cloud timely, for example, if the water leakage alarm
 is detected, the device will immediately be awakened and connected to
 the LWM2M server, reporting the alarm message to the cloud timely.
 
-`Release Assistance Indication (RAI)`_.
+.. _RAI:
+
+Release Assistance Indication (RAI)
 *****************************************
 
 If you have low-level control over the protocol your IOT device uses,
@@ -71,22 +73,25 @@ Sample building and running
 
        .. code-block:: console
     
-         $ git clone https://github.com/Noy0908/lwm2m-water-meter/tree/water-meter_v2.4.99
+         $ git clone https://github.com/Noy0908/lwm2m-water-meter.git
 
-#. | checkout branch.
+#. | checkout branch, you can build on `NCS v2.4.99` or `NCS v2.7.0`, but nRF9151 can only runs on `NCS v2.7.0`.
 
        .. code-block:: console
     
           $ git checkout water-meter_v2.4.99
+	  $ git checkout water-meter_v2.7.0
 
    .. note::
       The branch **water-meter_v2.4.99** is the application code which runs on nRF9160DK.
+	
+      The branch **water-meter_v2.7.0** is the application code which runs on nRF9151DK and nRF9160DK.
 
       The branch **pwm-pulse-count** is used to generate pulse waveforms which runs on nRF52840DK to simulate water flow sensor.
 
 #. | Set the LWM2M PSK
 
-   * | Open ``src/prj.conf``, set `CONFIG_APP_LWM2M_PSK <https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/samples/nrf9160/lwm2m_client/sample_description.html#config-app-lwm2m-psk>`__
+   * | Open ``src/prj.conf``, set `CONFIG_APP_LWM2M_PSK <https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples/cellular/lwm2m_client/sample_description.html#config-app-lwm2m-psk>`__
        to the hexadecimal representation of the PSK you will use when registering the device with the server.
 
 #. | Build the sample with the following overlays:
@@ -101,7 +106,15 @@ Sample building and running
 
   - ``overlay-lowpower.conf``
 
+  **For `NCS v2.4.99`, this config file is essential, but for `NCS v2.7.0`**
+
   - ``overlay-dtls-cid.conf``
+
+  **if you want to runs it on nRF9151DK, you need to add below config file.**
+
+  - ``boards/nrf9151dk_nrf9151_ns.conf``
+
+  **if you want to runs it on nRF9160DK, you need to add below config file.**
 
   - ``boards/nrf9160dk_nrf9160_ns.conf``
 
@@ -113,4 +126,4 @@ Sample building and running
 
 
 
-.. _Release Assistance Indication (RAI): https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/documentation/glossary.html#term-Release-Assistance-Indication-RAI
+.. _Release Assistance Indication (RAI): https://docs.nordicsemi.com/bundle/ncs-2.3.0/page/nrf/glossary.html#term-Release-Assistance-Indication-RAI

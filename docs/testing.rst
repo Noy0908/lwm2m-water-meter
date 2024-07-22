@@ -95,7 +95,7 @@ following steps to test it:
 
 5. | Test water flow: If you have a nRF52840DK, you can connect the P0.15
      on nRF52840 DK to P0.13 on nRF9160 DK to output pulse to simulate
-     water flow sensor. After you flash the **pwm-pulse-count** program to
+     water flow sensor, for nRF9151DK, the corresponding pin is P0.06. After you flash the **pwm-pulse-count** program to
      nRF52840DK, pulse waveforms with different frequency can be generated
      by pressing button1, and a measured water volume will be printed in
      the log (you can not include ``overlay-lowpower.conf`` file).
@@ -122,14 +122,12 @@ full and delta) updates are supported.
 To update the firmware, complete the following steps:
 
 1. | Identify the firmware image file to be uploaded to the device. See
-     `LTE
-     modem <https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#lte-modem>`__
-     and `FOTA
-     upgrades <https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf91_features.html#nrf9160-fota>`__
+     `LTE and FOTA
+     upgrades <https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/device_guides/nrf91/nrf91_features.html>`__
      for more information.
 
 2. | Change
-     `CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION <https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html#!CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION>`__
+     `CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION <https://docs.nordicsemi.com/bundle/ncs-latest/page/kconfig/index.html#!CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION>`__
      to a different version and rebuild the sample to generate the upgrade
      image.
 
@@ -152,7 +150,7 @@ To update the firmware, complete the following steps:
 
 9. | Click **Next** to config the firmware update settings in the menu ,
      Image transport type support **Cops(UDP)** and **HTTP**. we recommend
-     **HTTP**. URI format support both **DNS based** and **Raw IP address
+     **HTTP** with **Pull** delivery mode. URI format support both **DNS based** and **Raw IP address
      based**. **Timeout** depends on your network condition, the recommend
      value is 60 minutes.
 

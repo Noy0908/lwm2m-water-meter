@@ -26,10 +26,10 @@ LWM2M water meter introduction
 
 The LwM2M water meter demonstrates usage of the `Lightweight Machine to
 Machine
-(LwM2M) <https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/documentation/glossary.html#term-Lightweight-Machine-to-Machine-LwM2M>`__
+(LwM2M) <https://omaspecworks.org/what-is-oma-specworks/iot/lightweight-m2m-lwm2m/>`__
 protocol to connect a water meter to AVsystem through LTE/NBIOT. This
 sample uses the `LwM2M client
-utils <https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/lwm2m_client_utils.html#lib-lwm2m-client-utils>`__
+utils <https://docs.nordicsemi.com/bundle/ncs-2.3.0/page/nrf/libraries/networking/lwm2m_client_utils.html#lib-lwm2m-client-utils>`__
 library.
 
 The sample also supports a proprietary mechanism to fetch location

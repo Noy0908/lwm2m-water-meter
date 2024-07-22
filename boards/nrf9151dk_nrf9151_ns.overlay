@@ -22,11 +22,13 @@
 		signal {
 			compatible = "gpio-keys";
 			signal1: signal_1 {
-				gpios = <&gpio0 13 0x1>;
+				// gpios = <&gpio0 13 0x1>;			//for 9160DK
+				gpios = <&gpio0 6 0x1>;				//for 9151dk
 				label = "signal_1";
 			};
 			signal2: signal_2 {
-				gpios = <&gpio0 15 0x1>;
+				// gpios = <&gpio0 15 0x1>;			//for 9160DK
+				gpios = <&gpio0 7 0x1>;				//for 9151dk
 				label = "signal_2";
 			};
 		};

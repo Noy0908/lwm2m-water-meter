@@ -9,9 +9,10 @@ Once completed, you will be able to run and test the ultra low power application
 Hardware requirements
 *********************
 
-To meet the hardware requirements, ensure you have two Nordic's boards from the list of three supported models:
+To meet the hardware requirements, ensure you have two Nordic's boards from the list of below supported DKs:
 
-  * `nRF9160 DK`_
+   * ``nRF9160 DK``
+   * ``nRF9151 DK``
 
 To start working with the devices, refer to the following guidelines:
 
@@ -20,17 +21,18 @@ To start working with the devices, refer to the following guidelines:
 Software requirements
 *********************
 
-To meet the software requirements, install `nRF Connect SDK v2.4.99`_ and `nRF Command Line Tools`_.
+| To meet the software requirements, install ``nRF Connect SDK`` and ``nRF Command Line Tools``.
+| Currently we support ``nRF Connect SDK v2.4.99`` and ``nRF Connect SDK v2.7.0``.
+| For nRF9151DK, you can only chose ``nRF Connect SDK v2.7.0`` version.
 
 nRF Connect SDK
 ===============
 
-Perform the following steps to install `nRF Connect SDK v2.4.99`_ and setup boards:
+Perform the following steps to install `nRF Connect SDK`_ and setup boards:
 
-#. Set up your development environment by choosing one of the installation methods below:
+#. Installing the nRF Connect SDK:
 
-   * Follow `Installing automatically`_ guildelines to perform an automatic installation through the Toolchain Manager.
-   * Follow `Installing manually`_ guidelines to perform a manual installation.
+   * Follow `nRF Connect SDK`_ guildelines to install the 'nRF Connect SDK'.
 
    .. note::
       For additional information on setting up the device as well as Nordic’s development environment and tools, see the `nRF Connect SDK Getting started guide`_.
@@ -67,11 +69,9 @@ server. To know more about the AVSystem integration with nRF Connect
 SDK, see `AVSystem integration`_.
 
 .. _nRF9160 DK: https://www.nordicsemi.com/Products/Development-hardware/nrf9160-dk
-.. _nRF Connect SDK v2.4.99: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.4.99-dev2/nrf/index.html
+.. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html#install-ncs
 .. _nRF Command Line Tools: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs
-.. _Getting started with nRF91 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/device_guides/working_with_nrf/nrf91/nrf9160_gs.html#
+.. _Getting started with nRF91 Series: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/gsg_guides/nrf9160_gs.html
 .. _nRF Connect SDK Getting started guide: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started.html
-.. _Installing automatically: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/gs_assistant.html#installing-automatically
-.. _Installing manually: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/gs_installing.html#install-the-required-tools
-.. _Coiote Device Management: https://www.avsystem.com/products/coiote-iot-device-management-platform
+.. _Coiote Device Management: https://avsystem.com/coiote-iot-device-management-platform/
 .. _AVSystem integration: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/external_comp/avsystem.html#ug-avsystem
