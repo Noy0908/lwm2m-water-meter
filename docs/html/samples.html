@@ -147,7 +147,7 @@ updated values without the need for the server querying the client
 regularly.</p>
 <p>To enable notifications, the server must initiate an observation request
 on one or more resources of interest. For more information, see
-<strong>Enabling notifications</strong> chapter below.</p>
+<strong>Enabling notifications</strong> chapter.</p>
 </section>
 <section id="lwm2m-send">
 <span id="lwm2msend"></span><h2>LWM2M_send<a class="headerlink" href="#lwm2m-send" title="Permalink to this heading"></a></h2>
@@ -179,19 +179,19 @@ The recommended way to do this is enable below macro:</p>
 </div></blockquote>
 </li>
 <li><div class="line-block">
-<div class="line">checkout branch, you can build on <cite>NCS v2.4.99</cite> or <cite>NCS v2.7.0</cite>, but nRF9151 can only runs on <cite>NCS v2.7.0</cite>.</div>
+<div class="line">checkout branch, you can build on <code class="docutils literal notranslate"><span class="pre">NCS</span> <span class="pre">v2.4.99</span></code> or <code class="docutils literal notranslate"><span class="pre">NCS</span> <span class="pre">v2.7.0</span></code>, but nRF9151 can only runs on <code class="docutils literal notranslate"><span class="pre">NCS</span> <span class="pre">v2.7.0</span></code>.</div>
 </div>
 <blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>checkout<span class="w"> </span>water-meter_v2.4.99
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>checkout<span class="w"> </span>water-meter_v2.4.99<span class="w"> </span>or
 <span class="gp">$ </span>git<span class="w"> </span>checkout<span class="w"> </span>water-meter_v2.7.0
 </pre></div>
 </div>
 </div></blockquote>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The branch <strong>water-meter_v2.4.99</strong> is the application code which runs on nRF9160DK.</p>
-<p>The branch <strong>water-meter_v2.7.0</strong> is the application code which runs on nRF9151DK and nRF9160DK.</p>
-<p>The branch <strong>pwm-pulse-count</strong> is used to generate pulse waveforms which runs on nRF52840DK to simulate water flow sensor.</p>
+<p>The branch <code class="docutils literal notranslate"><span class="pre">water-meter_v2.4.99</span></code> is the application code which runs on nRF9160DK.</p>
+<p>The branch <code class="docutils literal notranslate"><span class="pre">water-meter_v2.7.0</span></code> is the application code which runs on nRF9151DK and nRF9160DK.</p>
+<p>The branch <code class="docutils literal notranslate"><span class="pre">pwm-pulse-count</span></code> is used to generate pulse waveforms which runs on nRF52840DK to simulate water flow sensor.</p>
 </div>
 </li>
 <li><div class="line-block">
@@ -217,11 +217,12 @@ to the hexadecimal representation of the PSK you will use when registering the d
 <li><p><code class="docutils literal notranslate"><span class="pre">overlay-assist-cell.conf</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">overlay-adv-firmware.conf</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">overlay-lowpower.conf</span></code></p></li>
-</ul>
-<p><strong>For `NCS v2.4.99`, this config file is essential, but for `NCS v2.7.0`</strong></p>
-<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">overlay-dtls-cid.conf</span></code></p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">overlay-dtls-cid.conf</span></code> has been deprecated in <code class="docutils literal notranslate"><span class="pre">NCS</span> <span class="pre">v2.7.0</span></code>.</p>
+</div>
 <p><strong>if you want to runs it on nRF9151DK, you need to add below config file.</strong></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">boards/nrf9151dk_nrf9151_ns.conf</span></code></p></li>

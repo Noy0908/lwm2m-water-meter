@@ -38,7 +38,7 @@ regularly.
 
 To enable notifications, the server must initiate an observation request
 on one or more resources of interest. For more information, see
-**Enabling notifications** chapter below.
+**Enabling notifications** chapter.
 
 .. _lwm2msend:
 
@@ -75,19 +75,19 @@ Sample building and running
     
          $ git clone https://github.com/Noy0908/lwm2m-water-meter.git
 
-#. | checkout branch, you can build on `NCS v2.4.99` or `NCS v2.7.0`, but nRF9151 can only runs on `NCS v2.7.0`.
+#. | checkout branch, you can build on ``NCS v2.4.99`` or ``NCS v2.7.0``, but nRF9151 can only runs on ``NCS v2.7.0``.
 
        .. code-block:: console
     
-          $ git checkout water-meter_v2.4.99
+          $ git checkout water-meter_v2.4.99 or
 	  $ git checkout water-meter_v2.7.0
 
    .. note::
-      The branch **water-meter_v2.4.99** is the application code which runs on nRF9160DK.
+      The branch ``water-meter_v2.4.99`` is the application code which runs on nRF9160DK.
 	
-      The branch **water-meter_v2.7.0** is the application code which runs on nRF9151DK and nRF9160DK.
+      The branch ``water-meter_v2.7.0`` is the application code which runs on nRF9151DK and nRF9160DK.
 
-      The branch **pwm-pulse-count** is used to generate pulse waveforms which runs on nRF52840DK to simulate water flow sensor.
+      The branch ``pwm-pulse-count`` is used to generate pulse waveforms which runs on nRF52840DK to simulate water flow sensor.
 
 #. | Set the LWM2M PSK
 
@@ -106,9 +106,11 @@ Sample building and running
 
   - ``overlay-lowpower.conf``
 
-  **For `NCS v2.4.99`, this config file is essential, but for `NCS v2.7.0`**
-
   - ``overlay-dtls-cid.conf``
+
+  .. note::
+     ``overlay-dtls-cid.conf`` has been deprecated in ``NCS v2.7.0``.
+
 
   **if you want to runs it on nRF9151DK, you need to add below config file.**
 

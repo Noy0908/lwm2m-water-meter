@@ -23,7 +23,7 @@ Software requirements
 
 | To meet the software requirements, install ``nRF Connect SDK`` and ``nRF Command Line Tools``.
 | Currently we support ``nRF Connect SDK v2.4.99`` and ``nRF Connect SDK v2.7.0``.
-| For nRF9151DK, you can only chose ``nRF Connect SDK v2.7.0`` version.
+| For nRF9151DK, you can only choose ``nRF Connect SDK v2.7.0`` version.
 
 nRF Connect SDK
 ===============
